@@ -1,6 +1,26 @@
 #include <fstream>
 #include <iostream>
 #include <getopt.h>
+#include "cache.h"
+
+void runTrace(std::ifstream &trace, Cache &cache) {
+  cache.printState();
+
+  int proc;
+  char rw;
+  unsigned long addr;
+
+  while (trace >> proc >> rw >> std::hex >> addr) {
+    std::cout << proc << " " << rw << " " << std::hex << addr << std::dec << "\n";
+    if (rw == 'R') {
+      cache.cacheRead(addr);
+    } else {
+      cache.cacheWrite(addr);
+    }
+  }
+
+  cache.printStats();
+}
 
 int main(int argc, char **argv) {
   std::string usage;
@@ -14,6 +34,10 @@ int main(int argc, char **argv) {
   char opt;
   std::string filepath;
 
+  int s;
+  int E;
+  int b;
+
   while ((opt = getopt(argc, argv, "hvs:E:b:t:")) != -1) {
       switch (opt) {
       case 'h':
@@ -23,15 +47,13 @@ int main(int argc, char **argv) {
         printf("verbose\n");
         break;
       case 's':
-        /* s = atol(optarg); */
-        /* S = 1 << s; // S = 2 ^ s */
+        s = atol(optarg);
         break;
       case 'E':
-        /* E = atol(optarg); */
+        E = atol(optarg);
         break;
       case 'b':
-        /* b = atol(optarg); */
-        /* B = 1 << b; // B = 2 ^ b; */
+        b = atol(optarg);
         break;
       case 't':
         filepath = std::string(optarg);
@@ -53,14 +75,9 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  std::string processor;
-  std::string rw;
-  std::string address;
+  Cache cache(s, E, b);
 
-  while (trace >> processor >> rw >> address) {
-    std::cout << processor << " " << rw << " " << address << "\n";
-  }
-
+  runTrace(trace, cache);
   trace.close();
 
   return 0;
