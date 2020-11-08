@@ -1,0 +1,22 @@
+CC = gcc
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wshadow -Wpedantic
+# DEPS = example.h
+OBJDIR = build
+vpath %.h src
+vpath %.cpp src
+OBJ = $(addprefix $(OBJDIR)/, cachesim.o)
+
+# Default build rule
+.PHONY: all
+all: cachesim
+
+cachesim: $(OBJ)
+	$(CXX) $(CXXFLAGS) -o cachesim $(OBJ)
+
+$(OBJDIR)/%.o: %.cpp $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+.PHONY: clean
+clean:
+	rm -f $(OBJDIR)/*.o cachesim a.out
