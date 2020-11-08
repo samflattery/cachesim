@@ -1,6 +1,9 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include <algorithm>
+
+#define ADDR_LEN 64L
 
 struct Block {
   Block(bool valid, bool dirty, long tag) : valid_(valid), dirty_(dirty), tag_(tag) {}

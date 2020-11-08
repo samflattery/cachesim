@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
   int E;
   int b;
 
+  // parse command line options
   while ((opt = getopt(argc, argv, "hvs:E:b:t:")) != -1) {
       switch (opt) {
       case 'h':
@@ -64,6 +65,7 @@ int main(int argc, char **argv) {
     }
   }
 
+  // -t option is required
   if (filepath == "") {
     std::cerr << "No trace file given\n";
     return 1;
@@ -75,9 +77,10 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  // run the input trace on the cache
   Cache cache(s, E, b);
-
   runTrace(trace, cache);
+
   trace.close();
 
   return 0;

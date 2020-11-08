@@ -5,21 +5,19 @@ Cache::Cache(int s, int E, int b) :
   hit_count_(0),
   miss_count_(0),
   eviction_count_(0),
-  dirty_blocks_evicted_(0)
-
-{
+  dirty_blocks_evicted_(0) {
   // initialize the set vector full of sets
   sets_.resize(S_, Set(E));
 }
 
 // return the tag and an iterator to the set that the line is in
 std::pair<long, std::vector<Set>::iterator> Cache::readAddr(unsigned long addr) {
-  long tag_size = 64L - (s_ + b_); // the tag is whatever's left after s and b
+  long tag_size = ADDR_LEN - (s_ + b_); // the tag is whatever's left after s and b
   long set_mask = 0L;
   for (int i = 0; i < s_; i++) {
       set_mask |= (1L << i);
   }
-  long tag = addr & ((1L << 63) >> (tag_size - 1));
+  long tag = addr & ((1L << (ADDR_LEN - 1L)) >> (tag_size - 1));
   long set_index = (addr & (set_mask << b_)) >> b_;
 
   auto set_iter = sets_.begin() + set_index;
@@ -71,6 +69,7 @@ void Cache::performOperation(unsigned long addr, bool is_write) {
   miss_count_++;
 
   // the data was not found in the cache, something needs to be evicted
+  // find the block with the largest last_used time stamp
   auto LRU_iter = std::max_element(set_iter->blocks_.begin(), set_iter->blocks_.end(),
       [](auto const &lhs, auto const &rhs) { return lhs.last_used_ <= rhs.last_used_; });
 
@@ -109,5 +108,5 @@ void Cache::printStats() {
   std::cout << "miss_count:\t\t"          << miss_count_ << "\n"
             << "hit_count:\t\t"           << hit_count_ << "\n"
             << "eviction_count:\t\t"      << eviction_count_ << "\n"
-            << "dirty_blocks_evicted:\t" << dirty_blocks_evicted_ << "\n";
+            << "dirty_blocks_evicted:\t"  << dirty_blocks_evicted_ << "\n";
 }
