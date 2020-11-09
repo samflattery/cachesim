@@ -1,17 +1,25 @@
 #pragma once
+
 #include <vector>
 #include <iostream>
 #include <algorithm>
 
 #define ADDR_LEN 64L
 
+// explicitly set I = 0 to default initialize an enum to invalid state
+enum class MESI {
+  M = 1,
+  E = 2,
+  S = 3,
+  I = 0
+};
+
 struct Block {
-  Block(bool valid, bool dirty, long tag) : valid_(valid), dirty_(dirty), tag_(tag) {}
-  Block() = default;
   bool valid_;
   bool dirty_;
   long tag_;
-  long last_used_;
+  long last_used_; // used to track LRU block in a set
+  MESI state_;
 };
 
 struct Set {
@@ -32,7 +40,17 @@ public:
 private:
   void performOperation(unsigned long addr, bool is_write);
   std::pair<long, std::vector<Set>::iterator> readAddr(unsigned long addr);
-  bool findInCache(long tag, std::vector<Set>::iterator set, bool is_write);
+  std::vector<Block>::iterator findInCache(long tag, std::vector<Set>::iterator set);
+
+  void updateBlockState(std::vector<Block>::iterator block, bool is_write);
+  void evictAndReplace(long tag, std::vector<Set>::iterator set, bool is_write);
+
+  void issueBusRd() {}
+  void issueBusRdX() {}
+  void issueFlush() {}
+
+  void receiveBusRd() {}
+  void receiveBusRdX() {}
 
   int s_;
   int S_;

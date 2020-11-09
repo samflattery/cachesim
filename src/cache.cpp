@@ -25,55 +25,77 @@ std::pair<long, std::vector<Set>::iterator> Cache::readAddr(unsigned long addr) 
   return {tag, set_iter};
 }
 
+std::ostream& operator<<(std::ostream& os, const MESI &mesi) {
+  switch (mesi) {
+    case MESI::M:
+      os << "M";
+      break;
+    case MESI::E:
+      os << "E";
+      break;
+    case MESI::S:
+      os << "S";
+      break;
+    case MESI::I:
+      os << "I";
+      break;
+  }
+  return os;
+}
+
 // find a tag in the set at the iterator
 // return true if the block was found in the cache, i.e. no eviction necessary
-bool Cache::findInCache(long tag, std::vector<Set>::iterator set, bool is_write) {
-  bool found = false;
+std::vector<Block>::iterator Cache::findInCache(long tag, std::vector<Set>::iterator set) {
+  std::vector<Block>::iterator found = set->blocks_.end();
 
   // run the entire loop here so we can increment last_used_ for all blocks
   for (auto block_iter = set->blocks_.begin(); block_iter != set->blocks_.end(); ++block_iter) {
     block_iter->last_used_++;
 
     if (block_iter->tag_ == tag) {
-      found = true;
-
-      // the block was accessed, reset its LRU counter
-      block_iter->last_used_ = 0;
-
-      if (is_write) {
-        block_iter->dirty_ = true;
-      }
-
-      // The block will now be brought into the cache if it was initially invalid
-      bool valid = block_iter->valid_;
-      block_iter->valid_ = true;
-
-      if (valid) hit_count_++;
-      else miss_count_++;
+      found = block_iter;
     }
 
   }
   return found;
 }
 
-void Cache::performOperation(unsigned long addr, bool is_write) {
-  auto pair = readAddr(addr);
-  long tag = pair.first;
-  auto set_iter = pair.second;
-
-  if (findInCache(tag, set_iter, is_write)) {
-    return;
+void Cache::updateBlockState(std::vector<Block>::iterator block, bool is_write) {
+  switch (block->state_) {
+    case MESI::M:
+      // no bus events necessary, just stays in the same state
+      break;
+    case MESI::E:
+      if (is_write) {
+        block->state_ = MESI::M;
+      }
+      break;
+    case MESI::S:
+      if (is_write) {
+        block->state_ = MESI::M;
+        issueBusRdX();
+      }
+      break;
+    case MESI::I:
+      if (is_write) {
+        block->state_ = MESI::M;
+        issueBusRdX();
+      } else {
+        // TODO(samflattery) request directory for whether this transition should be to shared or
+        // exclusive
+        block->state_ = MESI::E;
+        issueBusRdX();
+      }
+      break;
   }
+}
 
-  // not found in the cache, must have been a non-cold miss
-  miss_count_++;
-
-  // the data was not found in the cache, something needs to be evicted
+void Cache::evictAndReplace(long tag, std::vector<Set>::iterator set, bool is_write) {
   // find the block with the largest last_used time stamp
-  auto LRU_iter = std::max_element(set_iter->blocks_.begin(), set_iter->blocks_.end(),
+  auto LRU_iter = std::max_element(set->blocks_.begin(), set->blocks_.end(),
       [](auto const &lhs, auto const &rhs) { return lhs.last_used_ <= rhs.last_used_; });
 
-  // update counters
+  // update eviction counters
   if (LRU_iter->valid_) {
     if (LRU_iter->dirty_) {
       dirty_blocks_evicted_++;
@@ -86,6 +108,44 @@ void Cache::performOperation(unsigned long addr, bool is_write) {
   LRU_iter->valid_ = true;
   LRU_iter->dirty_ = is_write;
   LRU_iter->last_used_ = 0;
+  LRU_iter->state_ = MESI::I;
+
+  updateBlockState(LRU_iter, is_write);
+}
+
+void Cache::performOperation(unsigned long addr, bool is_write) {
+  auto pair = readAddr(addr);
+  long tag = pair.first;
+  auto set_iter = pair.second;
+
+  auto block_end = set_iter->blocks_.end();
+
+  auto block = findInCache(tag, set_iter);
+  if (block != block_end) {
+    // found the block in the cache
+    // the block was accessed, reset its LRU counter
+    block->last_used_ = 0;
+
+    if (is_write) {
+      block->dirty_ = true;
+    }
+
+    // The block will now be brought into the cache if it was initially invalid
+    bool valid = block->valid_;
+    block->valid_ = true;
+
+    if (valid) hit_count_++;
+    else miss_count_++;
+
+    updateBlockState(block, is_write);
+
+    return;
+  }
+
+  // we missed in the cache and something needs to be evicted
+  miss_count_++;
+  evictAndReplace(tag, set_iter, is_write);
+
 }
 
 void Cache::cacheRead(unsigned long addr) {
