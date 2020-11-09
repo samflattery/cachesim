@@ -30,6 +30,7 @@ struct Set {
   std::vector<Block> blocks_;
 };
 
+// forward declarations because there is a circular dependency between the headers
 class Interconnect;
 
 // a single LRU cache
@@ -82,6 +83,7 @@ private:
   long eviction_count_;
   long dirty_blocks_evicted_;
 
+  // the interconnect through which messages to the directory are sent
   Interconnect *interconnect_;
 
   std::vector<Set> sets_;

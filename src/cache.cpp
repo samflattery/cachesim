@@ -30,8 +30,6 @@ std::pair<long, std::vector<Set>::iterator> Cache::readAddr(unsigned long addr) 
 
   auto set_iter = sets_.begin() + set_index;
 
-  interconnect_->sendBusRd(0, 0);
-
   return {tag, set_iter};
 }
 
