@@ -14,6 +14,8 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs) {
   caches[0].printState();
   Directory directory(procs, b);
 
+  Interconnect interconnect(&caches, &directory);
+
   int proc;
   char rw;
   unsigned long addr;

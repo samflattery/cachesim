@@ -32,14 +32,16 @@ int Directory::findOwner(DirectoryLine *line) {
   return -1;
 }
 
-void Directory::invalidateSharers(DirectoryLine *line, long addr) {
+void Directory::invalidateSharers(DirectoryLine *line, int new_owner, long addr) {
   assert(line->state_ == DirectoryState::S);
   for (size_t i = 0; i < line->presence_.size(); ++i) {
+    if (i == new_owner) continue;
     if (line->presence_[i]) interconnect_->sendInvalidate(i, addr);
   }
 }
 
 void Directory::receiveBusRd(int cache_id, long address) {
+  std::cout << "directory received BusRd\n";
   long addr = getAddr(address);
   DirectoryLine *line = getLine(addr);
 
@@ -68,6 +70,7 @@ void Directory::receiveBusRd(int cache_id, long address) {
 }
 
 void Directory::receiveBusRdX(int cache_id, long address) {
+  std::cout << "directory received BusRdX\n";
   long addr = getAddr(address);
   DirectoryLine *line = getLine(addr);
 
@@ -79,8 +82,8 @@ void Directory::receiveBusRdX(int cache_id, long address) {
       line->state_ = DirectoryState::EM;
       break;
     case DirectoryState::S:
-      // invalidate all sharers, send the owner the memory block
-      invalidateSharers(line, addr);
+      // invalidate all sharers, except the cache sending the BusRdX, send the owner the memory block
+      invalidateSharers(line, cache_id, addr);
       interconnect_->sendWriteMiss(cache_id, addr);
       line->presence_[cache_id] = true;
       line->state_ = DirectoryState::EM;

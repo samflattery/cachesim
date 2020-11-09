@@ -33,10 +33,6 @@ public:
   void receiveBusRd(int cache_id, long address);
   void receiveBusRdX(int cache_id, long address);
 
-  /* void sendInvalidate(int cache_id, long address); */
-  /* void requestData(int cache_id, long address); */
-  /* void sendData(int cache_id, long address); */
-
 private:
   // translate a full address into a block address by zeroing lowest block_offset_bits_ bits
   long getAddr(long addr);
@@ -47,8 +43,8 @@ private:
   // find the owner of an EM line
   int findOwner(DirectoryLine* line);
 
-  // send invalidate messages to all sharers of a line
-  void invalidateSharers(DirectoryLine *line, long addr);
+  // send invalidate messages to all sharers of a line except new_owner
+  void invalidateSharers(DirectoryLine *line, int new_owner, long addr);
 
   int procs_;
   int block_offset_bits_;
