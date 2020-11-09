@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include "interconnect.h"
 
 #define ADDR_LEN 64L
 
@@ -14,6 +15,7 @@ enum class MESI {
   I = 0
 };
 
+// defines a cache block / cache line metadata and its MESI state
 struct Block {
   bool valid_;
   bool dirty_;
@@ -22,46 +24,65 @@ struct Block {
   MESI state_;
 };
 
+// defines a cache set as a set of blocks
 struct Set {
   Set(int associativity) { blocks_.resize(associativity, Block()); }
   std::vector<Block> blocks_;
 };
 
+class Interconnect;
+
+// a single LRU cache
 class Cache {
 public:
-  Cache(int s, int E, int b);
+  // construct a new cache with given id with 2^s sets, 2^b bytes per block and
+  // associativity E
+  Cache(int id, int s, int E, int b);
 
+  // perform a read / write to a given address
   void cacheWrite(unsigned long addr);
   void cacheRead(unsigned long addr);
 
-  void printState();
-  void printStats();
+  void printState() const;
+  void printStats() const;
+
+  void connectToInterconnect(Interconnect *interconnect);
 
 private:
+  // perform a read / write to given address
   void performOperation(unsigned long addr, bool is_write);
+
+  // get the tag and set of an address
   std::pair<long, std::vector<Set>::iterator> readAddr(unsigned long addr);
+
+  // find the block that that matches the tag in a given set
+  // return set->blocks_.end() if tag not found
   std::vector<Block>::iterator findInCache(long tag, std::vector<Set>::iterator set);
 
-  void updateBlockState(std::vector<Block>::iterator block, bool is_write);
-  void evictAndReplace(long tag, std::vector<Set>::iterator set, bool is_write);
+  // update the MESI state of a block
+  void updateBlockState(std::vector<Block>::iterator block, long addr, bool is_write);
 
-  void issueBusRd() {}
-  void issueBusRdX() {}
-  void issueFlush() {}
+  // evict the LRU block in the cache and set the state of the replacement block
+  void evictAndReplace(long tag, std::vector<Set>::iterator set, long addr, bool is_write);
 
-  void receiveBusRd() {}
-  void receiveBusRdX() {}
+  int getCacheId() const;
 
+  int cache_id_;
+
+  // the settings of the cache such as line size
   int s_;
   int S_;
   int E_;
   int b_;
   int B_;
 
+  // stats being collected about execution
   long hit_count_;
   long miss_count_;
   long eviction_count_;
   long dirty_blocks_evicted_;
+
+  Interconnect *interconnect_;
 
   std::vector<Set> sets_;
 };

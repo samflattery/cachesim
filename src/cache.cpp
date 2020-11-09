@@ -1,13 +1,21 @@
 #include "cache.h"
 
-Cache::Cache(int s, int E, int b) :
+Cache::Cache(int id, int s, int E, int b) :
+  cache_id_(id),
   s_(s), S_(1 << s), E_(E), b_(b), B_(1 << b),
   hit_count_(0),
   miss_count_(0),
   eviction_count_(0),
-  dirty_blocks_evicted_(0) {
+  dirty_blocks_evicted_(0),
+  interconnect_(nullptr) {
   // initialize the set vector full of sets
   sets_.resize(S_, Set(E));
+}
+
+int Cache::getCacheId() const { return cache_id_; }
+
+void Cache::connectToInterconnect(Interconnect *interconnect) {
+  interconnect_ = interconnect;
 }
 
 // return the tag and an iterator to the set that the line is in
@@ -21,6 +29,8 @@ std::pair<long, std::vector<Set>::iterator> Cache::readAddr(unsigned long addr) 
   long set_index = (addr & (set_mask << b_)) >> b_;
 
   auto set_iter = sets_.begin() + set_index;
+
+  interconnect_->sendBusRd(0, 0);
 
   return {tag, set_iter};
 }
@@ -60,7 +70,7 @@ std::vector<Block>::iterator Cache::findInCache(long tag, std::vector<Set>::iter
   return found;
 }
 
-void Cache::updateBlockState(std::vector<Block>::iterator block, bool is_write) {
+void Cache::updateBlockState(std::vector<Block>::iterator block, long addr, bool is_write) {
   switch (block->state_) {
     case MESI::M:
       // no bus events necessary, just stays in the same state
@@ -73,24 +83,30 @@ void Cache::updateBlockState(std::vector<Block>::iterator block, bool is_write) 
     case MESI::S:
       if (is_write) {
         block->state_ = MESI::M;
-        issueBusRdX();
+        if (interconnect_ != nullptr) {
+          interconnect_->sendBusRdX(cache_id_, addr);
+        }
       }
       break;
     case MESI::I:
       if (is_write) {
         block->state_ = MESI::M;
-        issueBusRdX();
+        if (interconnect_ != nullptr) {
+          interconnect_->sendBusRdX(cache_id_, addr);
+        }
       } else {
         // TODO(samflattery) request directory for whether this transition should be to shared or
         // exclusive
         block->state_ = MESI::E;
-        issueBusRdX();
+        if (interconnect_ != nullptr) {
+          interconnect_->sendBusRd(cache_id_, addr);
+        }
       }
       break;
   }
 }
 
-void Cache::evictAndReplace(long tag, std::vector<Set>::iterator set, bool is_write) {
+void Cache::evictAndReplace(long tag, std::vector<Set>::iterator set, long addr, bool is_write) {
   // find the block with the largest last_used time stamp
   auto LRU_iter = std::max_element(set->blocks_.begin(), set->blocks_.end(),
       [](auto const &lhs, auto const &rhs) { return lhs.last_used_ <= rhs.last_used_; });
@@ -110,7 +126,7 @@ void Cache::evictAndReplace(long tag, std::vector<Set>::iterator set, bool is_wr
   LRU_iter->last_used_ = 0;
   LRU_iter->state_ = MESI::I;
 
-  updateBlockState(LRU_iter, is_write);
+  updateBlockState(LRU_iter, addr, is_write);
 }
 
 void Cache::performOperation(unsigned long addr, bool is_write) {
@@ -137,14 +153,16 @@ void Cache::performOperation(unsigned long addr, bool is_write) {
     if (valid) hit_count_++;
     else miss_count_++;
 
-    updateBlockState(block, is_write);
+    // TODO(samflattery) update stats when updating block state since write to
+    // non-exclusive data is considered a write-miss, etc.
+    updateBlockState(block, addr, is_write);
 
     return;
   }
 
   // we missed in the cache and something needs to be evicted
   miss_count_++;
-  evictAndReplace(tag, set_iter, is_write);
+  evictAndReplace(tag, set_iter, addr, is_write);
 
 }
 
@@ -156,16 +174,18 @@ void Cache::cacheWrite(unsigned long addr) {
   return performOperation(addr, /* is_write */ true);
 }
 
-void Cache::printState() {
-  std::cout << "s:\t" << s_ << "\n"
+void Cache::printState() const {
+  std::cout << "id:\t" << cache_id_ << "\n"
+            << "s:\t" << s_ << "\n"
             << "S:\t" << S_ << "\n"
             << "E:\t" << E_ << "\n"
             << "b:\t" << b_ << "\n"
             << "B:\t" << B_ << "\n";
 }
 
-void Cache::printStats() {
-  std::cout << "miss_count:\t\t"          << miss_count_ << "\n"
+void Cache::printStats() const {
+  std::cout << "cache_id:\t\t"            << cache_id_ << "\n"
+            << "miss_count:\t\t"          << miss_count_ << "\n"
             << "hit_count:\t\t"           << hit_count_ << "\n"
             << "eviction_count:\t\t"      << eviction_count_ << "\n"
             << "dirty_blocks_evicted:\t"  << dirty_blocks_evicted_ << "\n";
