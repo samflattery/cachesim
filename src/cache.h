@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include "interconnect.h"
+#include <cassert>
 
 #define ADDR_LEN 64L
 
@@ -17,7 +18,6 @@ enum class MESI {
 
 // defines a cache block / cache line metadata and its MESI state
 struct Block {
-  bool valid_;
   bool dirty_;
   long tag_;
   long last_used_; // used to track LRU block in a set
@@ -49,6 +49,12 @@ public:
 
   void connectToInterconnect(Interconnect *interconnect);
 
+  // *** communication with interconnect ***
+  void receiveInvalidate(long addr);
+  void receiveFetch(long addr);
+  void receiveReadMiss(long addr, bool exclusive);
+  void receiveWriteMiss(long addr);
+
 private:
   // perform a read / write to given address
   void performOperation(unsigned long addr, bool is_write);
@@ -58,7 +64,11 @@ private:
 
   // find the block that that matches the tag in a given set
   // return set->blocks_.end() if tag not found
-  std::vector<Block>::iterator findInCache(long tag, std::vector<Set>::iterator set);
+  std::vector<Block>::iterator findInSet(long tag, std::vector<Set>::iterator set);
+
+  // find the block that the address maps to
+  // asserts that the block is in the cache, since this method is used in the interconnect callbacks
+  std::vector<Block>::iterator findInCache(long addr);
 
   // update the MESI state of a block
   void updateBlockState(std::vector<Block>::iterator block, long addr, bool is_write);
@@ -84,6 +94,7 @@ private:
   long dirty_blocks_evicted_;
 
   // the interconnect through which messages to the directory are sent
+  // can be nullptr when running with a single cache
   Interconnect *interconnect_;
 
   std::vector<Set> sets_;

@@ -2,9 +2,8 @@
 
 #include <unordered_map>
 #include <vector>
+#include <cassert>
 #include "interconnect.h"
-
-#define ADDR_LEN 64L
 
 enum class DirectoryState {
   U = 0, // uncached - no caches have valid copy
@@ -26,7 +25,7 @@ class Interconnect;
 // address with the lower b bits masked off, since they represent block offset bits
 class Directory {
 public:
-  Directory(int procs, int b) : procs_(procs), block_offset_bits_(b) {}
+  Directory(int procs, int b) : procs_(procs), block_offset_bits_(b), interconnect_(nullptr) {}
   ~Directory() { for (auto &[addr, line] : directory_) delete line; }
 
   void connectToInterconnect(Interconnect *interconnect);
@@ -45,8 +44,18 @@ private:
   // return the line of a given address, constructing a new line if none is in the directory
   DirectoryLine *getLine(long addr);
 
+  // find the owner of an EM line
+  int findOwner(DirectoryLine* line);
+
+  // send invalidate messages to all sharers of a line
+  void invalidateSharers(DirectoryLine *line, long addr);
+
   int procs_;
   int block_offset_bits_;
   std::unordered_map<long, DirectoryLine *> directory_;
+
+  // the interconnect through which messages are sent to the caches
+  // should never be null after initialization of the interconnect since if we have a directory
+  // we must have an interconnect
   Interconnect *interconnect_;
 };
