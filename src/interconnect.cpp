@@ -1,7 +1,8 @@
 #include "interconnect.h"
 
-Interconnect::Interconnect(std::vector<Cache> *caches, Directory *directory)
-  : caches_(caches), directory_(directory) {
+Interconnect::Interconnect(std::vector<Cache> *caches, Directory *directory, bool verbose)
+  : caches_(caches), directory_(directory),
+    total_events_(0L), verbose_(verbose) {
   for (auto &cache : (*caches_)) {
     cache.connectToInterconnect(this);
   }
@@ -9,31 +10,37 @@ Interconnect::Interconnect(std::vector<Cache> *caches, Directory *directory)
 }
 
 void Interconnect::sendBusRd(int src, long addr) {
+  if (verbose_) std::cout << "cache " << src << " sending BusRd of " << addr << "\n";
   directory_->receiveBusRd(src, addr);
   total_events_++;
 }
 
 void Interconnect::sendBusRdX(int src, long addr) {
+  if (verbose_) std::cout << "cache " << src << " sending BusRdX of " << addr << "\n";
   directory_->receiveBusRdX(src, addr);
   total_events_++;
 }
 
 void Interconnect::sendFetch(int dest, long addr) {
+  if (verbose_) std::cout << "sending Fetch of " << std::hex << addr << std::dec << " to cache " << dest << "\n";
   (*caches_)[dest].receiveFetch(addr);
   total_events_++;
 }
 
 void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
+  if (verbose_) std::cout << "sending ReadMiss on " << std::hex << addr << std::dec << " to cache " << dest << "\n";
   (*caches_)[dest].receiveReadMiss(addr, exclusive);
   total_events_++;
 }
 
 void Interconnect::sendWriteMiss(int dest, long addr) {
+  if (verbose_) std::cout << "sending WriteMiss on " << std::hex << addr << std::dec << " to cache " << dest << "\n";
   (*caches_)[dest].receiveWriteMiss(addr);
   total_events_++;
 }
 
 void Interconnect::sendInvalidate(int dest, long addr) {
+  if (verbose_) std::cout << "sending Invalidate of " << std::hex << addr << std::dec << " to cache " << dest << "\n";
   (*caches_)[dest].receiveInvalidate(addr);
   total_events_++;
 }

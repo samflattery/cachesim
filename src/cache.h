@@ -93,8 +93,8 @@ private:
   long eviction_count_;
   long dirty_blocks_evicted_;
 
-  // the interconnect through which messages to the directory are sent
-  // can be nullptr when running with a single cache
+  // the interconnect through which messages to the directory are sent can be nullptr when running
+  // with a single cache
   Interconnect *interconnect_;
 
   std::vector<Set> sets_;

@@ -5,23 +5,24 @@
 #include "directory.h"
 #include "interconnect.h"
 
-void runSimulation(int s, int E, int b, std::ifstream &trace, int procs) {
+void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, bool verbose) {
   std::vector<Cache> caches;
   for (int i = 0; i < procs; ++i) {
     caches.push_back(Cache(i, s, E, b));
   }
 
+  std::cout << "Running simulation with cache settings:\n";
   caches[0].printState();
   Directory directory(procs, b);
 
-  Interconnect interconnect(&caches, &directory);
+  Interconnect interconnect(&caches, &directory, verbose);
 
   int proc;
   char rw;
   unsigned long addr;
 
   while (trace >> proc >> rw >> std::hex >> addr >> std::dec) {
-    std::cout << proc << " " << rw << " " << std::hex << addr << std::dec << "\n";
+    std::cout << "\n" << proc << " " << rw << " " << std::hex << addr << std::dec << "\n";
     if (rw == 'R') {
       caches[proc].cacheRead(addr);
     } else {
@@ -51,6 +52,7 @@ int main(int argc, char **argv) {
   int E;
   int b;
   int procs;
+  bool verbose = false;
 
   // parse command line options
   while ((opt = getopt(argc, argv, "hvs:E:b:t:p:")) != -1) {
@@ -59,7 +61,7 @@ int main(int argc, char **argv) {
         std::cout << usage;
         return 0;
       case 'v':
-        printf("verbose\n");
+        verbose = true;
         break;
       case 's':
         s = atoi(optarg);
@@ -95,7 +97,7 @@ int main(int argc, char **argv) {
   }
 
   // run the input trace on the cache
-  runSimulation(s, E, b, trace, procs);
+  runSimulation(s, E, b, trace, procs, verbose);
 
   trace.close();
 

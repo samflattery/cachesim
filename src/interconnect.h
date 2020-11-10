@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <iostream>
 #include "cache.h"
 #include "directory.h"
 
@@ -10,7 +11,7 @@ class Directory;
 // models an interconnect that the directory and cache will communicate through
 class Interconnect {
 public:
-  Interconnect(std::vector<Cache> *caches, Directory *directory);
+  Interconnect(std::vector<Cache> *caches, Directory *directory, bool verbose = false);
 
   // cache -> directory messages
   void sendBusRd(int src, long addr);
@@ -27,4 +28,5 @@ private:
   Directory *directory_;
 
   unsigned long total_events_;
+  bool verbose_;
 };

@@ -14,9 +14,7 @@ Cache::Cache(int id, int s, int E, int b) :
 
 int Cache::getCacheId() const { return cache_id_; }
 
-void Cache::connectToInterconnect(Interconnect *interconnect) {
-  interconnect_ = interconnect;
-}
+void Cache::connectToInterconnect(Interconnect *interconnect) { interconnect_ = interconnect; }
 
 // return the tag and an iterator to the set that the line is in
 std::pair<long, std::vector<Set>::iterator> Cache::readAddr(unsigned long addr) {
@@ -181,41 +179,35 @@ void Cache::cacheWrite(unsigned long addr) {
 }
 
 void Cache::receiveInvalidate(long addr) {
-  std::cout << "Cache " << cache_id_ << " received invalidate\n";
   auto block = findInCache(addr);
   block->state_ = MESI::I;
 }
 
 void Cache::receiveFetch(long addr) {
-  std::cout << "Cache " << cache_id_ << " received fetch\n";
   auto block = findInCache(addr);
   block->state_ = MESI::S;
   // flush data back to directory
 }
 
 void Cache::receiveReadMiss(long addr, bool exclusive) {
-  std::cout << "Cache " << cache_id_ << " received read miss\n";
   auto block = findInCache(addr);
   if (exclusive) block->state_ = MESI::E;
   else block->state_ = MESI::S;
 }
 
 void Cache::receiveWriteMiss(long addr) {
-  std::cout << "Cache " << cache_id_ << " received write miss\n";
   auto block = findInCache(addr);
   block->state_ = MESI::M;
 }
 
 void Cache::printState() const {
-  std::cout << "s:\t" << s_ << "\n"
-            << "S:\t" << S_ << "\n"
-            << "E:\t" << E_ << "\n"
-            << "b:\t" << b_ << "\n"
-            << "B:\t" << B_ << "\n\n";
+  std::cout << "set size:\t" << S_ << "\n"
+            << "associativity:\t" << E_ << "\n"
+            << "line size:\t" << B_ << "\n\n";
 }
 
 void Cache::printStats() const {
-  std::cout << "\ncache_id:\t\t"            << cache_id_ << "\n"
+  std::cout << "\n*** Cache "            << cache_id_ << " ***\n"
             << "miss_count:\t\t"          << miss_count_ << "\n"
             << "hit_count:\t\t"           << hit_count_ << "\n"
             << "eviction_count:\t\t"      << eviction_count_ << "\n"
