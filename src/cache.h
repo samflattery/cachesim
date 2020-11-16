@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <memory>
+#include <vector>
 #include "interconnect.h"
 
-#include "mesi_block.h"
 #include "cache_block.h"
+#include "mesi_block.h"
 
 #define ADDR_LEN 64L
 
@@ -19,16 +19,19 @@ struct Set {
       blocks_.push_back(new MESIBlock);
     }
   }
-  ~Set() { for (auto block : blocks_) delete block; }
+  ~Set() {
+    for (auto block : blocks_) delete block;
+  }
   std::vector<CacheBlock*> blocks_;
 };
 
-// forward declarations because there is a circular dependency between the headers
+// forward declarations because there is a circular dependency between the
+// headers
 class Interconnect;
 
 // a single LRU cache
 class Cache {
-public:
+ public:
   // construct a new cache with given id with 2^s sets, 2^b bytes per block and
   // associativity E
   Cache(int id, int s, int E, int b);
@@ -40,7 +43,7 @@ public:
   void printState() const;
   void printStats() const;
 
-  void connectToInterconnect(Interconnect *interconnect);
+  void connectToInterconnect(Interconnect* interconnect);
 
   // *** communication with interconnect ***
   void receiveInvalidate(long addr);
@@ -48,7 +51,7 @@ public:
   void receiveReadMiss(long addr, bool exclusive);
   void receiveWriteMiss(long addr);
 
-private:
+ private:
   // perform a read / write to given address
   void performOperation(unsigned long addr, bool is_write);
 
@@ -60,19 +63,21 @@ private:
   CacheBlock* findInSet(long tag, std::shared_ptr<Set> set);
 
   // find the block that the address maps to
-  // asserts that the block is in the cache, since this method is used in the interconnect callbacks
+  // asserts that the block is in the cache, since this method is used in the
+  // interconnect callbacks
   CacheBlock* findInCache(long addr);
 
   // evict the LRU block in the cache and set the state of the replacement block
-  void evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr, bool is_write);
+  void evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr,
+                       bool is_write);
 
   // send a given message over the interconnect
   void performInterconnectAction(InterconnectAction action, unsigned long addr);
 
-  // send a message over the interconnect saying that this memory address has been evicted so this
-  // cache no longer has ownership of it
-  // tag is the tag of the evicted bit
-  // addr is the address of the new block, which is used to add the set bits back to tag
+  // send a message over the interconnect saying that this memory address has
+  // been evicted so this cache no longer has ownership of it tag is the tag of
+  // the evicted bit addr is the address of the new block, which is used to add
+  // the set bits back to tag
   void sendEviction(unsigned long tag, unsigned long addr);
 
   int getCacheId() const;
@@ -91,9 +96,9 @@ private:
   int b_;
   int B_;
 
-  // the interconnect through which messages to the directory are sent can be nullptr when running
-  // with a single cache
-  Interconnect *interconnect_;
+  // the interconnect through which messages to the directory are sent can be
+  // nullptr when running with a single cache
+  Interconnect* interconnect_;
 
   std::vector<std::shared_ptr<Set>> sets_;
 };

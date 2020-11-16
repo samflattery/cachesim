@@ -1,14 +1,14 @@
 #pragma once
 
+#include <cassert>
 #include <unordered_map>
 #include <vector>
-#include <cassert>
 #include "interconnect.h"
 
 enum class DirectoryState {
-  U = 0, // uncached - no caches have valid copy
-  S = 1, // shared - at least one cache has data
-  EM = 2 // exclusive / modified - one cache owns it
+  U = 0,  // uncached - no caches have valid copy
+  S = 1,  // shared - at least one cache has data
+  EM = 2  // exclusive / modified - one cache owns it
 };
 
 // models a line in the directory as a state and a list of presence bits
@@ -24,9 +24,11 @@ class Interconnect;
 // defines a mapping { block address -> ( state, presence bits ) } where the block address is the
 // address with the lower b bits masked off, since they represent block offset bits
 class Directory {
-public:
+ public:
   Directory(int procs, int b) : procs_(procs), block_offset_bits_(b), interconnect_(nullptr) {}
-  ~Directory() { for (auto &[addr, line] : directory_) delete line; }
+  ~Directory() {
+    for (auto &[addr, line] : directory_) delete line;
+  }
 
   void connectToInterconnect(Interconnect *interconnect);
 
@@ -34,7 +36,7 @@ public:
   void receiveBusRdX(int cache_id, long address);
   void receiveEviction(int cache_id, long address);
 
-private:
+ private:
   // translate a full address into a block address by zeroing lowest block_offset_bits_ bits
   long getAddr(long addr);
 
@@ -42,7 +44,7 @@ private:
   DirectoryLine *getLine(long addr);
 
   // find the owner of an EM line
-  int findOwner(DirectoryLine* line);
+  int findOwner(DirectoryLine *line);
 
   // send invalidate messages to all sharers of a line except new_owner
   void invalidateSharers(DirectoryLine *line, int new_owner, long addr);

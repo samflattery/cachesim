@@ -1,11 +1,12 @@
+#include <getopt.h>
 #include <fstream>
 #include <iostream>
-#include <getopt.h>
 #include "cache.h"
 #include "directory.h"
 #include "interconnect.h"
 
-void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, bool verbose) {
+void runSimulation(int s, int E, int b, std::ifstream &trace, int procs,
+                   bool verbose) {
   std::vector<Cache> caches;
   for (int i = 0; i < procs; ++i) {
     caches.push_back(Cache(i, s, E, b));
@@ -22,7 +23,9 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, bool ve
   unsigned long addr;
 
   while (trace >> proc >> rw >> std::hex >> addr >> std::dec) {
-    std::cout << "\n" << proc << " " << rw << " " << std::hex << addr << std::dec << "\n";
+    std::cout << "\n"
+              << proc << " " << rw << " " << std::hex << addr << std::dec
+              << "\n";
     if (rw == 'R') {
       caches[proc].cacheRead(addr);
     } else {
@@ -56,7 +59,7 @@ int main(int argc, char **argv) {
 
   // parse command line options
   while ((opt = getopt(argc, argv, "hvs:E:b:t:p:")) != -1) {
-      switch (opt) {
+    switch (opt) {
       case 'h':
         std::cout << usage;
         return 0;

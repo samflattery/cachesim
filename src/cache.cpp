@@ -1,10 +1,13 @@
 #include "cache.h"
 
-Cache::Cache(int id, int s, int E, int b) :
-  cache_id_(id),
-  s_(s), S_(1 << s), E_(E), b_(b), B_(1 << b),
-  interconnect_(nullptr) {
-
+Cache::Cache(int id, int s, int E, int b)
+    : cache_id_(id),
+      s_(s),
+      S_(1 << s),
+      E_(E),
+      b_(b),
+      B_(1 << b),
+      interconnect_(nullptr) {
   // construct sets in a loop to make sure that they are not copied pointers
   sets_.reserve(S_);
   for (int i = 0; i < S_; i++) {
@@ -14,14 +17,17 @@ Cache::Cache(int id, int s, int E, int b) :
 
 int Cache::getCacheId() const { return cache_id_; }
 
-void Cache::connectToInterconnect(Interconnect *interconnect) { interconnect_ = interconnect; }
+void Cache::connectToInterconnect(Interconnect* interconnect) {
+  interconnect_ = interconnect;
+}
 
 // return the tag and an iterator to the set that the line is in
 std::pair<long, std::shared_ptr<Set>> Cache::readAddr(unsigned long addr) {
-  long tag_size = ADDR_LEN - (s_ + b_); // the tag is whatever's left after s and b
+  long tag_size =
+      ADDR_LEN - (s_ + b_);  // the tag is whatever's left after s and b
   long set_mask = 0L;
   for (int i = 0; i < s_; i++) {
-      set_mask |= (1L << i);
+    set_mask |= (1L << i);
   }
   long tag = addr & ((1L << (ADDR_LEN - 1L)) >> (tag_size - 1));
   long set_index = (addr & (set_mask << b_)) >> b_;
@@ -31,7 +37,7 @@ std::pair<long, std::shared_ptr<Set>> Cache::readAddr(unsigned long addr) {
   return {tag, set_ptr};
 }
 
-std::ostream& operator<<(std::ostream& os, const MESI &mesi) {
+std::ostream& operator<<(std::ostream& os, const MESI& mesi) {
   switch (mesi) {
     case MESI::M:
       os << "M";
@@ -64,10 +70,14 @@ CacheBlock* Cache::findInSet(long tag, std::shared_ptr<Set> set) {
   return found;
 }
 
-void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr, bool is_write) {
+void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set,
+                            unsigned long addr, bool is_write) {
   // find the block with the largest last_used time stamp
-  auto LRU_block = std::max_element(set->blocks_.begin(), set->blocks_.end(),
-      [](auto const &lhs, auto const &rhs) { return lhs->getLastUsed() <= rhs->getLastUsed(); });
+  auto LRU_block =
+      std::max_element(set->blocks_.begin(), set->blocks_.end(),
+                       [](auto const& lhs, auto const& rhs) {
+                         return lhs->getLastUsed() <= rhs->getLastUsed();
+                       });
 
   sendEviction((*LRU_block)->getTag(), addr);
 
@@ -83,7 +93,7 @@ void Cache::sendEviction(unsigned long tag, unsigned long addr) {
 
   long set_mask = 0L;
   for (int i = 0; i < s_; i++) {
-      set_mask |= (1L << i);
+    set_mask |= (1L << i);
   }
   long set_bits = (addr & (set_mask << b_));
 
@@ -113,8 +123,7 @@ void Cache::performOperation(unsigned long addr, bool is_write) {
     InterconnectAction action;
     if (is_write) {
       action = block->writeBlock();
-    }
-    else {
+    } else {
       action = block->readBlock();
     }
     performInterconnectAction(action, addr);
@@ -133,7 +142,8 @@ void Cache::cacheWrite(unsigned long addr) {
   return performOperation(addr, /* is_write */ true);
 }
 
-void Cache::performInterconnectAction(InterconnectAction action, unsigned long addr) {
+void Cache::performInterconnectAction(InterconnectAction action,
+                                      unsigned long addr) {
   if (interconnect_ == nullptr) return;
 
   switch (action) {
@@ -220,9 +230,9 @@ void Cache::printState() const {
 }
 
 void Cache::printStats() const {
-  std::cout << "\n*** Cache "             << cache_id_ << " ***\n"
-            << "miss_count:\t\t"          << getMissCount() << "\n"
-            << "hit_count:\t\t"           << getHitCount() << "\n"
-            << "eviction_count:\t\t"      << getEvictionCount() << "\n"
-            << "dirty_blocks_evicted:\t"  << getDirtyEvictionCount() << "\n\n";
+  std::cout << "\n*** Cache " << cache_id_ << " ***\n"
+            << "miss_count:\t\t" << getMissCount() << "\n"
+            << "hit_count:\t\t" << getHitCount() << "\n"
+            << "eviction_count:\t\t" << getEvictionCount() << "\n"
+            << "dirty_blocks_evicted:\t" << getDirtyEvictionCount() << "\n\n";
 }

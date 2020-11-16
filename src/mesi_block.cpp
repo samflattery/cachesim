@@ -1,7 +1,6 @@
 #include "mesi_block.h"
 
-MESIBlock::MESIBlock() :
-  CacheBlock(), state_(MESI::I) {}
+MESIBlock::MESIBlock() : CacheBlock(), state_(MESI::I) {}
 
 InterconnectAction MESIBlock::readBlock() {
   last_used_ = 0;
@@ -67,23 +66,13 @@ InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag) {
   return updateState(is_write);
 }
 
-void MESIBlock::invalidate() {
-  state_ = MESI::I;
-}
+void MESIBlock::invalidate() { state_ = MESI::I; }
 
-
-void MESIBlock::flush() {
-  state_ = MESI::S;
-}
+void MESIBlock::flush() { state_ = MESI::S; }
 
 void MESIBlock::readMiss(bool exclusive) {
   std::cout << "read miss message with exclusive " << exclusive << std::endl;
   state_ = exclusive ? MESI::E : MESI::S;
 }
 
-void MESIBlock::writeMiss() {
-  state_ = MESI::M;
-}
-
-
-
+void MESIBlock::writeMiss() { state_ = MESI::M; }

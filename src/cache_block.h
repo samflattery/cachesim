@@ -1,23 +1,18 @@
 #pragma once
 
-enum class InterconnectAction {
-  NOACTION,
-  BUSRD,
-  BUSRDX,
-  FLUSH
-};
+enum class InterconnectAction { NOACTION, BUSRD, BUSRDX, FLUSH };
 
 // Abstract class for a cache block
 class CacheBlock {
-public:
-  CacheBlock() :
-    dirty_(false),
-    tag_(0L),
-    last_used_(0L),
-    hit_count_(0L),
-    miss_count_(0L),
-    evictions_(0L),
-    dirty_evictions_(0L) {}
+ public:
+  CacheBlock()
+      : dirty_(false),
+        tag_(0L),
+        last_used_(0L),
+        hit_count_(0L),
+        miss_count_(0L),
+        evictions_(0L),
+        dirty_evictions_(0L) {}
 
   virtual ~CacheBlock() {}
 
@@ -52,13 +47,12 @@ public:
   // response from interconnect after write miss
   virtual void writeMiss() = 0;
 
-protected:
-
+ protected:
   virtual InterconnectAction updateState(bool is_write) = 0;
 
   bool dirty_;
   long tag_;
-  long last_used_; // used to track LRU block in a set
+  long last_used_;  // used to track LRU block in a set
 
   size_t hit_count_;
   size_t miss_count_;
