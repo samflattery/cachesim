@@ -5,23 +5,21 @@
 #include <algorithm>
 #include <memory>
 #include "interconnect.h"
+
 #include "mesi_block.h"
+#include "cache_block.h"
 
 #define ADDR_LEN 64L
 
 // defines a cache set as a set of blocks
 struct Set {
   Set(int associativity) {
+    blocks_.reserve(associativity);
     for (int i = 0; i < associativity; i++) {
-      MESIBlock *block = new MESIBlock;
-      blocks_.push_back(block);
+      blocks_.push_back(new MESIBlock);
     }
   }
-
-  ~Set() {
-    std::cout << "freeing block\n";
-    for (auto block : blocks_) delete block;
-  }
+  ~Set() { for (auto block : blocks_) delete block; }
   std::vector<CacheBlock*> blocks_;
 };
 
@@ -66,9 +64,23 @@ private:
   CacheBlock* findInCache(long addr);
 
   // evict the LRU block in the cache and set the state of the replacement block
-  void evictAndReplace(long tag, std::shared_ptr<Set> set, bool is_write);
+  void evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr, bool is_write);
+
+  // send a given message over the interconnect
+  void performInterconnectAction(InterconnectAction action, unsigned long addr);
+
+  // send a message over the interconnect saying that this memory address has been evicted so this
+  // cache no longer has ownership of it
+  // tag is the tag of the evicted bit
+  // addr is the address of the new block, which is used to add the set bits back to tag
+  void sendEviction(unsigned long tag, unsigned long addr);
 
   int getCacheId() const;
+
+  size_t getHitCount() const;
+  size_t getMissCount() const;
+  size_t getEvictionCount() const;
+  size_t getDirtyEvictionCount() const;
 
   int cache_id_;
 
@@ -78,12 +90,6 @@ private:
   int E_;
   int b_;
   int B_;
-
-  // stats being collected about execution
-  long hit_count_;
-  long miss_count_;
-  long eviction_count_;
-  long dirty_blocks_evicted_;
 
   // the interconnect through which messages to the directory are sent can be nullptr when running
   // with a single cache

@@ -16,6 +16,7 @@ public:
   // cache -> directory messages
   void sendBusRd(int src, long addr);
   void sendBusRdX(int src, long addr);
+  void sendEviction(int src, long addr);
 
   // directory -> cache messages
   void sendReadMiss(int dest, long addr, bool exclusive);

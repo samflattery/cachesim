@@ -17,8 +17,8 @@ public:
   MESIBlock();
   virtual ~MESIBlock() {}
 
-  virtual void writeBlock() override;
-  virtual void readBlock() override;
+  virtual InterconnectAction writeBlock() override;
+  virtual InterconnectAction readBlock() override;
 
   virtual InterconnectAction evictAndReplace(bool is_write, long tag) override;
 

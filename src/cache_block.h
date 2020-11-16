@@ -14,10 +14,10 @@ public:
     dirty_(false),
     tag_(0L),
     last_used_(0L),
-    evictions_(0L),
-    dirty_evictions_(0L),
     hit_count_(0L),
-    miss_count_(0L) {}
+    miss_count_(0L),
+    evictions_(0L),
+    dirty_evictions_(0L) {}
 
   virtual ~CacheBlock() {}
 
@@ -27,9 +27,15 @@ public:
   long getTag() const { return tag_; }
   void incrLastUsed() { last_used_++; }
 
+  // Get stats on the block
+  size_t getHitCount() { return hit_count_; }
+  size_t getMissCount() { return miss_count_; }
+  size_t getEvictionCount() { return evictions_; }
+  size_t getDirtyEvictionCount() { return dirty_evictions_; }
+
   // Read and write the block
-  virtual void writeBlock() = 0;
-  virtual void readBlock() = 0;
+  virtual InterconnectAction writeBlock() = 0;
+  virtual InterconnectAction readBlock() = 0;
 
   // Evict a block and replace with new tag
   virtual InterconnectAction evictAndReplace(bool is_write, long tag) = 0;
@@ -54,8 +60,8 @@ protected:
   long tag_;
   long last_used_; // used to track LRU block in a set
 
-  size_t evictions_;
-  size_t dirty_evictions_;
   size_t hit_count_;
   size_t miss_count_;
+  size_t evictions_;
+  size_t dirty_evictions_;
 };

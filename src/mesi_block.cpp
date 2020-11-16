@@ -3,35 +3,42 @@
 MESIBlock::MESIBlock() :
   CacheBlock(), state_(MESI::I) {}
 
-void MESIBlock::readBlock() {
+InterconnectAction MESIBlock::readBlock() {
   last_used_ = 0;
-  updateState(false);
+  return updateState(false);
 }
 
-void MESIBlock::writeBlock() {
+InterconnectAction MESIBlock::writeBlock() {
   last_used_ = 0;
-  updateState(true);
+  dirty_ = true;
+  return updateState(true);
 }
 
 InterconnectAction MESIBlock::updateState(bool is_write) {
   switch (state_) {
     case MESI::M:
       // no interconnect events necessary, just stays in modified state
+      hit_count_++;
       break;
     case MESI::E:
       if (is_write) {
         // no interconnect event, just silent upgrade
         state_ = MESI::M;
       }
+      hit_count_++;
       break;
     case MESI::S:
       if (is_write) {
+        // TODO(samflattery) consider this a miss as the upgrade is required?
+        miss_count_++;
         state_ = MESI::S;
         return InterconnectAction::BUSRDX;
       }
+      hit_count_++;
       // nothing to be done in read case, stays in shared state
       break;
     case MESI::I:
+      miss_count_++;
       if (is_write) {
         state_ = MESI::M;
         return InterconnectAction::BUSRDX;
@@ -66,9 +73,11 @@ void MESIBlock::invalidate() {
 
 
 void MESIBlock::flush() {
+  state_ = MESI::S;
 }
 
 void MESIBlock::readMiss(bool exclusive) {
+  std::cout << "read miss message with exclusive " << exclusive << std::endl;
   state_ = exclusive ? MESI::E : MESI::S;
 }
 

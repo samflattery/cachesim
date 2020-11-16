@@ -32,6 +32,7 @@ public:
 
   void receiveBusRd(int cache_id, long address);
   void receiveBusRdX(int cache_id, long address);
+  void receiveEviction(int cache_id, long address);
 
 private:
   // translate a full address into a block address by zeroing lowest block_offset_bits_ bits

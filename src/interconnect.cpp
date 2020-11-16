@@ -10,14 +10,20 @@ Interconnect::Interconnect(std::vector<Cache> *caches, Directory *directory, boo
 }
 
 void Interconnect::sendBusRd(int src, long addr) {
-  if (verbose_) std::cout << "cache " << src << " sending BusRd of " << addr << "\n";
+  if (verbose_) std::cout << "cache " << src << " sending BusRd of " << std::hex << addr << std::dec << "\n";
   directory_->receiveBusRd(src, addr);
   total_events_++;
 }
 
 void Interconnect::sendBusRdX(int src, long addr) {
-  if (verbose_) std::cout << "cache " << src << " sending BusRdX of " << addr << "\n";
+  if (verbose_) std::cout << "cache " << src << " sending BusRdX of " << std::hex << addr << std::dec << "\n";
   directory_->receiveBusRdX(src, addr);
+  total_events_++;
+}
+
+void Interconnect::sendEviction(int src, long addr) {
+  if (verbose_) std::cout << "cache " << src << " sending Eviction of " << std::hex << addr << std::dec << "\n";
+  directory_->receiveEviction(src, addr);
   total_events_++;
 }
 
