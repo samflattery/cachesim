@@ -12,8 +12,7 @@ class Directory;
 // models an interconnect that the directory and cache will communicate through
 class Interconnect {
  public:
-  Interconnect(std::vector<Cache> *caches, Directory *directory,
-               bool verbose = false);
+  Interconnect(std::vector<Cache> *caches, Directory *directory, bool verbose = false);
 
   // cache -> directory messages
   void sendBusRd(int src, long addr);

@@ -1,13 +1,7 @@
 #include "cache.h"
 
 Cache::Cache(int id, int s, int E, int b)
-    : cache_id_(id),
-      s_(s),
-      S_(1 << s),
-      E_(E),
-      b_(b),
-      B_(1 << b),
-      interconnect_(nullptr) {
+    : cache_id_(id), s_(s), S_(1 << s), E_(E), b_(b), B_(1 << b), interconnect_(nullptr) {
   // construct sets in a loop to make sure that they are not copied pointers
   sets_.reserve(S_);
   for (int i = 0; i < S_; i++) {
@@ -17,14 +11,11 @@ Cache::Cache(int id, int s, int E, int b)
 
 int Cache::getCacheId() const { return cache_id_; }
 
-void Cache::connectToInterconnect(Interconnect* interconnect) {
-  interconnect_ = interconnect;
-}
+void Cache::connectToInterconnect(Interconnect* interconnect) { interconnect_ = interconnect; }
 
 // return the tag and an iterator to the set that the line is in
 std::pair<long, std::shared_ptr<Set>> Cache::readAddr(unsigned long addr) {
-  long tag_size =
-      ADDR_LEN - (s_ + b_);  // the tag is whatever's left after s and b
+  long tag_size = ADDR_LEN - (s_ + b_);  // the tag is whatever's left after s and b
   long set_mask = 0L;
   for (int i = 0; i < s_; i++) {
     set_mask |= (1L << i);
@@ -70,14 +61,11 @@ CacheBlock* Cache::findInSet(long tag, std::shared_ptr<Set> set) {
   return found;
 }
 
-void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set,
-                            unsigned long addr, bool is_write) {
+void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr, bool is_write) {
   // find the block with the largest last_used time stamp
-  auto LRU_block =
-      std::max_element(set->blocks_.begin(), set->blocks_.end(),
-                       [](auto const& lhs, auto const& rhs) {
-                         return lhs->getLastUsed() <= rhs->getLastUsed();
-                       });
+  auto LRU_block = std::max_element(
+      set->blocks_.begin(), set->blocks_.end(),
+      [](auto const& lhs, auto const& rhs) { return lhs->getLastUsed() <= rhs->getLastUsed(); });
 
   if ((*LRU_block)->isValid()) {
     sendEviction((*LRU_block)->getTag(), addr);
@@ -136,16 +124,11 @@ void Cache::performOperation(unsigned long addr, bool is_write) {
   evictAndReplace(tag, set, addr, is_write);
 }
 
-void Cache::cacheRead(unsigned long addr) {
-  return performOperation(addr, /* is_write */ false);
-}
+void Cache::cacheRead(unsigned long addr) { return performOperation(addr, /* is_write */ false); }
 
-void Cache::cacheWrite(unsigned long addr) {
-  return performOperation(addr, /* is_write */ true);
-}
+void Cache::cacheWrite(unsigned long addr) { return performOperation(addr, /* is_write */ true); }
 
-void Cache::performInterconnectAction(InterconnectAction action,
-                                      unsigned long addr) {
+void Cache::performInterconnectAction(InterconnectAction action, unsigned long addr) {
   if (interconnect_ == nullptr) return;
 
   switch (action) {

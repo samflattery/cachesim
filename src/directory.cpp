@@ -18,9 +18,7 @@ long Directory::getAddr(long addr) {
   return addr & block_mask;
 }
 
-void Directory::connectToInterconnect(Interconnect *interconnect) {
-  interconnect_ = interconnect;
-}
+void Directory::connectToInterconnect(Interconnect *interconnect) { interconnect_ = interconnect; }
 
 int Directory::findOwner(DirectoryLine *line) {
   assert(line->state_ == DirectoryState::EM);
@@ -32,8 +30,7 @@ int Directory::findOwner(DirectoryLine *line) {
   return -1;
 }
 
-void Directory::invalidateSharers(DirectoryLine *line, int new_owner,
-                                  long addr) {
+void Directory::invalidateSharers(DirectoryLine *line, int new_owner, long addr) {
   assert(line->state_ == DirectoryState::S);
   for (size_t i = 0; i < line->presence_.size(); ++i) {
     if (i == (size_t)new_owner) continue;

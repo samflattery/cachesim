@@ -5,8 +5,7 @@
 #include "directory.h"
 #include "interconnect.h"
 
-void runSimulation(int s, int E, int b, std::ifstream &trace, int procs,
-                   bool verbose) {
+void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, bool verbose) {
   std::vector<Cache> caches;
   for (int i = 0; i < procs; ++i) {
     caches.push_back(Cache(i, s, E, b));
@@ -24,9 +23,7 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs,
 
   while (trace >> proc >> rw >> std::hex >> addr >> std::dec) {
     if (verbose) {
-      std::cout << "\n"
-                << proc << " " << rw << " " << std::hex << addr << std::dec
-                << "\n";
+      std::cout << "\n" << proc << " " << rw << " " << std::hex << addr << std::dec << "\n";
     }
 
     if (rw == 'R') {

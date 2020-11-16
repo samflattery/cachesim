@@ -72,8 +72,6 @@ void MESIBlock::invalidate() { state_ = MESI::I; }
 
 void MESIBlock::flush() { state_ = MESI::S; }
 
-void MESIBlock::readMiss(bool exclusive) {
-  state_ = exclusive ? MESI::E : MESI::S;
-}
+void MESIBlock::readMiss(bool exclusive) { state_ = exclusive ? MESI::E : MESI::S; }
 
 void MESIBlock::writeMiss() { state_ = MESI::M; }

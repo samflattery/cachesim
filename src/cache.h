@@ -68,8 +68,7 @@ class Cache {
   CacheBlock* findInCache(long addr);
 
   // evict the LRU block in the cache and set the state of the replacement block
-  void evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr,
-                       bool is_write);
+  void evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr, bool is_write);
 
   // send a given message over the interconnect
   void performInterconnectAction(InterconnectAction action, unsigned long addr);
