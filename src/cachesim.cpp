@@ -23,9 +23,12 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs,
   unsigned long addr;
 
   while (trace >> proc >> rw >> std::hex >> addr >> std::dec) {
-    std::cout << "\n"
-              << proc << " " << rw << " " << std::hex << addr << std::dec
-              << "\n";
+    if (verbose) {
+      std::cout << "\n"
+                << proc << " " << rw << " " << std::hex << addr << std::dec
+                << "\n";
+    }
+
     if (rw == 'R') {
       caches[proc].cacheRead(addr);
     } else {

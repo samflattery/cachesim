@@ -28,6 +28,9 @@ class CacheBlock {
   size_t getEvictionCount() { return evictions_; }
   size_t getDirtyEvictionCount() { return dirty_evictions_; }
 
+  // Is this block valid
+  virtual bool isValid() = 0;
+
   // Read and write the block
   virtual InterconnectAction writeBlock() = 0;
   virtual InterconnectAction readBlock() = 0;

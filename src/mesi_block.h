@@ -12,6 +12,8 @@ class MESIBlock : public CacheBlock {
   MESIBlock();
   virtual ~MESIBlock() {}
 
+  virtual bool isValid() override;
+
   virtual InterconnectAction writeBlock() override;
   virtual InterconnectAction readBlock() override;
 

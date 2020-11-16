@@ -79,7 +79,9 @@ void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set,
                          return lhs->getLastUsed() <= rhs->getLastUsed();
                        });
 
-  sendEviction((*LRU_block)->getTag(), addr);
+  if ((*LRU_block)->isValid()) {
+    sendEviction((*LRU_block)->getTag(), addr);
+  }
 
   InterconnectAction action = (*LRU_block)->evictAndReplace(is_write, tag);
   performInterconnectAction(action, addr);

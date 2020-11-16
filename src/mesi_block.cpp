@@ -66,12 +66,13 @@ InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag) {
   return updateState(is_write);
 }
 
+bool MESIBlock::isValid() { return state_ != MESI::I; }
+
 void MESIBlock::invalidate() { state_ = MESI::I; }
 
 void MESIBlock::flush() { state_ = MESI::S; }
 
 void MESIBlock::readMiss(bool exclusive) {
-  std::cout << "read miss message with exclusive " << exclusive << std::endl;
   state_ = exclusive ? MESI::E : MESI::S;
 }
 
