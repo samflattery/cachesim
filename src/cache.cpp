@@ -9,7 +9,7 @@ Cache::Cache(int id, int s, int E, int b) :
   dirty_blocks_evicted_(0),
   interconnect_(nullptr) {
   // initialize the set vector full of sets
-  sets_.resize(S_, Set(E));
+  sets_.resize(S_, std::make_shared<Set>(E));
 }
 
 int Cache::getCacheId() const { return cache_id_; }
@@ -17,7 +17,7 @@ int Cache::getCacheId() const { return cache_id_; }
 void Cache::connectToInterconnect(Interconnect *interconnect) { interconnect_ = interconnect; }
 
 // return the tag and an iterator to the set that the line is in
-std::pair<long, std::vector<Set>::iterator> Cache::readAddr(unsigned long addr) {
+std::pair<long, std::shared_ptr<Set>> Cache::readAddr(unsigned long addr) {
   long tag_size = ADDR_LEN - (s_ + b_); // the tag is whatever's left after s and b
   long set_mask = 0L;
   for (int i = 0; i < s_; i++) {
@@ -26,9 +26,9 @@ std::pair<long, std::vector<Set>::iterator> Cache::readAddr(unsigned long addr) 
   long tag = addr & ((1L << (ADDR_LEN - 1L)) >> (tag_size - 1));
   long set_index = (addr & (set_mask << b_)) >> b_;
 
-  auto set_iter = sets_.begin() + set_index;
+  auto set_ptr = sets_[set_index];
 
-  return {tag, set_iter};
+  return {tag, set_ptr};
 }
 
 std::ostream& operator<<(std::ostream& os, const MESI &mesi) {
@@ -50,124 +50,55 @@ std::ostream& operator<<(std::ostream& os, const MESI &mesi) {
 }
 
 // find a tag in the set at the iterator
-std::vector<Block>::iterator Cache::findInSet(long tag, std::vector<Set>::iterator set) {
-  std::vector<Block>::iterator found = set->blocks_.end();
+CacheBlock* Cache::findInSet(long tag, std::shared_ptr<Set> set) {
+  CacheBlock* found = nullptr;
 
   // run the entire loop here so we can increment last_used_ for all blocks
-  for (auto block_iter = set->blocks_.begin(); block_iter != set->blocks_.end(); ++block_iter) {
-    block_iter->last_used_++;
-
-    if (block_iter->tag_ == tag) {
-      found = block_iter;
+  for (auto block : set->blocks_) {
+    block->incrLastUsed();
+    if (block->getTag() == tag) {
+      found = block;
     }
-
   }
+
   return found;
 }
 
-void Cache::updateBlockState(std::vector<Block>::iterator block, long addr, bool is_write) {
-  switch (block->state_) {
-    case MESI::M:
-      // no interconnect events necessary, just stays in modified state
-      break;
-    case MESI::E:
-      if (is_write) {
-        // no interconnect event, just silent upgrade
-        block->state_ = MESI::M;
-      }
-      break;
-    case MESI::S:
-      if (is_write) {
-        if (interconnect_ != nullptr) {
-          interconnect_->sendBusRdX(cache_id_, addr);
-        } else {
-          block->state_ = MESI::S;
-        }
-      }
-      // nothing to be done in read case, stays in shared state
-      break;
-    case MESI::I:
-      if (is_write) {
-        if (interconnect_ != nullptr) {
-          interconnect_->sendBusRdX(cache_id_, addr);
-        } else {
-          block->state_ = MESI::M;
-        }
-      } else {
-        if (interconnect_ != nullptr) {
-          interconnect_->sendBusRd(cache_id_, addr);
-        } else {
-          block->state_ = MESI::E;
-        }
-      }
-      break;
-  }
-}
-
-void Cache::evictAndReplace(long tag, std::vector<Set>::iterator set, long addr, bool is_write) {
+void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set, bool is_write) {
   // find the block with the largest last_used time stamp
-  auto LRU_iter = std::max_element(set->blocks_.begin(), set->blocks_.end(),
-      [](auto const &lhs, auto const &rhs) { return lhs.last_used_ <= rhs.last_used_; });
+  auto LRU_block = std::max_element(set->blocks_.begin(), set->blocks_.end(),
+      [](auto const &lhs, auto const &rhs) { return lhs->getLastUsed() <= rhs->getLastUsed(); });
 
-  // update eviction counters
-  if (LRU_iter->state_ != MESI::I) {
-    if (LRU_iter->dirty_) {
-      dirty_blocks_evicted_++;
-    }
-    eviction_count_++;
-  }
-
-  // update the block to refer to the new block that was brought into the cache
-  LRU_iter->tag_ = tag;
-  LRU_iter->dirty_ = is_write;
-  LRU_iter->last_used_ = 0;
-  LRU_iter->state_ = MESI::I; // TODO(this should be different)
-
-  updateBlockState(LRU_iter, addr, is_write);
+  (*LRU_block)->evictAndReplace(is_write, tag);
 }
 
-std::vector<Block>::iterator Cache::findInCache(long addr) {
+CacheBlock* Cache::findInCache(long addr) {
   auto pair = readAddr(addr);
   long tag = pair.first;
-  auto set_iter = pair.second;
+  auto set = pair.second;
 
-  auto block = findInSet(tag, set_iter);
-  assert(block != set_iter->blocks_.end());
+  auto block = findInSet(tag, set);
   return block;
 }
 
 void Cache::performOperation(unsigned long addr, bool is_write) {
   auto pair = readAddr(addr);
   long tag = pair.first;
-  auto set_iter = pair.second;
+  auto set = pair.second;
 
-  auto block_end = set_iter->blocks_.end();
-
-  auto block = findInSet(tag, set_iter);
-  if (block != block_end) {
-    // found the block in the cache
-    // the block was accessed, reset its LRU counter
-    block->last_used_ = 0;
-
+  auto block = findInSet(tag, set);
+  if (block != nullptr) {
     if (is_write) {
-      block->dirty_ = true;
+      block->writeBlock();
     }
-
-    // The block will now be brought into the cache if it was initially invalid
-    if (block->state_ != MESI::I) hit_count_++;
-    else miss_count_++;
-
-    // TODO(samflattery) update stats when updating block state since write to
-    // non-exclusive data is considered a write-miss, etc.
-    updateBlockState(block, addr, is_write);
-
+    else {
+      block->readBlock();
+    }
     return;
   }
 
   // we missed in the cache and something needs to be evicted
-  miss_count_++;
-  evictAndReplace(tag, set_iter, addr, is_write);
-
+  evictAndReplace(tag, set, is_write);
 }
 
 void Cache::cacheRead(unsigned long addr) {
@@ -180,24 +111,22 @@ void Cache::cacheWrite(unsigned long addr) {
 
 void Cache::receiveInvalidate(long addr) {
   auto block = findInCache(addr);
-  block->state_ = MESI::I;
+  block->invalidate();
 }
 
 void Cache::receiveFetch(long addr) {
   auto block = findInCache(addr);
-  block->state_ = MESI::S;
-  // flush data back to directory
+  block->flush();
 }
 
 void Cache::receiveReadMiss(long addr, bool exclusive) {
   auto block = findInCache(addr);
-  if (exclusive) block->state_ = MESI::E;
-  else block->state_ = MESI::S;
+  block->readMiss(exclusive);
 }
 
 void Cache::receiveWriteMiss(long addr) {
   auto block = findInCache(addr);
-  block->state_ = MESI::M;
+  block->writeMiss();
 }
 
 void Cache::printState() const {

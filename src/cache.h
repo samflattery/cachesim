@@ -3,31 +3,26 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 #include "interconnect.h"
-#include <cassert>
+#include "mesi_block.h"
 
 #define ADDR_LEN 64L
 
-// explicitly set I = 0 to default initialize an enum to invalid state
-enum class MESI {
-  M = 1,
-  E = 2,
-  S = 3,
-  I = 0
-};
-
-// defines a cache block / cache line metadata and its MESI state
-struct Block {
-  bool dirty_;
-  long tag_;
-  long last_used_; // used to track LRU block in a set
-  MESI state_;
-};
-
 // defines a cache set as a set of blocks
 struct Set {
-  Set(int associativity) { blocks_.resize(associativity, Block()); }
-  std::vector<Block> blocks_;
+  Set(int associativity) {
+    for (int i = 0; i < associativity; i++) {
+      MESIBlock *block = new MESIBlock;
+      blocks_.push_back(block);
+    }
+  }
+
+  ~Set() {
+    std::cout << "freeing block\n";
+    for (auto block : blocks_) delete block;
+  }
+  std::vector<CacheBlock*> blocks_;
 };
 
 // forward declarations because there is a circular dependency between the headers
@@ -60,21 +55,18 @@ private:
   void performOperation(unsigned long addr, bool is_write);
 
   // get the tag and set of an address
-  std::pair<long, std::vector<Set>::iterator> readAddr(unsigned long addr);
+  std::pair<long, std::shared_ptr<Set>> readAddr(unsigned long addr);
 
   // find the block that that matches the tag in a given set
   // return set->blocks_.end() if tag not found
-  std::vector<Block>::iterator findInSet(long tag, std::vector<Set>::iterator set);
+  CacheBlock* findInSet(long tag, std::shared_ptr<Set> set);
 
   // find the block that the address maps to
   // asserts that the block is in the cache, since this method is used in the interconnect callbacks
-  std::vector<Block>::iterator findInCache(long addr);
-
-  // update the MESI state of a block
-  void updateBlockState(std::vector<Block>::iterator block, long addr, bool is_write);
+  CacheBlock* findInCache(long addr);
 
   // evict the LRU block in the cache and set the state of the replacement block
-  void evictAndReplace(long tag, std::vector<Set>::iterator set, long addr, bool is_write);
+  void evictAndReplace(long tag, std::shared_ptr<Set> set, bool is_write);
 
   int getCacheId() const;
 
@@ -97,5 +89,5 @@ private:
   // with a single cache
   Interconnect *interconnect_;
 
-  std::vector<Set> sets_;
+  std::vector<std::shared_ptr<Set>> sets_;
 };
