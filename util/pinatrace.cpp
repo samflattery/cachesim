@@ -16,19 +16,23 @@
 #include <stdio.h>
 #include "pin.H"
 
-
 FILE * trace;
+PIN_LOCK lock;
 
 // Print a memory read record
-VOID RecordMemRead(VOID * ip, VOID * addr)
+VOID RecordMemRead(VOID * ip, VOID * addr, THREADID thread)
 {
-    fprintf(trace,"0 R %llx\n", (unsigned long long) addr);
+    PIN_GetLock(&lock, thread);
+    fprintf(trace,"%d R %llx\n", thread, (unsigned long long) addr);
+    PIN_ReleaseLock(&lock);
 }
 
 // Print a memory write record
-VOID RecordMemWrite(VOID * ip, VOID * addr)
+VOID RecordMemWrite(VOID * ip, VOID * addr, THREADID thread)
 {
-    fprintf(trace,"0 W %llx\n", (unsigned long long) addr);
+    PIN_GetLock(&lock, thread);
+    fprintf(trace,"%d W %llx\n", thread, (unsigned long long) addr);
+    PIN_ReleaseLock(&lock);
 }
 
 // Is called for every instruction and instruments reads and writes
@@ -49,7 +53,7 @@ VOID Instruction(INS ins, VOID *v)
             INS_InsertPredicatedCall(
                 ins, IPOINT_BEFORE, (AFUNPTR)RecordMemRead,
                 IARG_INST_PTR,
-                IARG_MEMORYOP_EA, memOp,
+                IARG_MEMORYOP_EA, memOp, IARG_THREAD_ID,
                 IARG_END);
         }
         // Note that in some architectures a single memory operand can be
@@ -60,7 +64,7 @@ VOID Instruction(INS ins, VOID *v)
             INS_InsertPredicatedCall(
                 ins, IPOINT_BEFORE, (AFUNPTR)RecordMemWrite,
                 IARG_INST_PTR,
-                IARG_MEMORYOP_EA, memOp,
+                IARG_MEMORYOP_EA, memOp, IARG_THREAD_ID,
                 IARG_END);
         }
     }
