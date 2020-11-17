@@ -2,3 +2,4 @@ build/
 tags:
 cachesim
 a.out
+traces/large.trace

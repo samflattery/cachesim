@@ -1,11 +1,11 @@
 CC = gcc
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wshadow -Wpedantic
-DEPS = cache.h
+DEPS = cache_block.h mesi_block.h directory.h cache.h interconnect.h
 OBJDIR = build
 vpath %.h src
 vpath %.cpp src
-OBJ = $(addprefix $(OBJDIR)/, cache.o cachesim.o)
+OBJ = $(addprefix $(OBJDIR)/, mesi_block.o cache.o interconnect.o directory.o cachesim.o)
 
 # Default build rule
 .PHONY: all
