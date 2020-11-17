@@ -28,24 +28,6 @@ std::pair<long, std::shared_ptr<Set>> Cache::readAddr(unsigned long addr) {
   return {tag, set_ptr};
 }
 
-std::ostream& operator<<(std::ostream& os, const MESI& mesi) {
-  switch (mesi) {
-    case MESI::M:
-      os << "M";
-      break;
-    case MESI::E:
-      os << "E";
-      break;
-    case MESI::S:
-      os << "S";
-      break;
-    case MESI::I:
-      os << "I";
-      break;
-  }
-  return os;
-}
-
 // find a tag in the set at the iterator
 CacheBlock* Cache::findInSet(long tag, std::shared_ptr<Set> set) {
   CacheBlock* found = nullptr;

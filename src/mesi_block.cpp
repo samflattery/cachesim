@@ -18,25 +18,28 @@ InterconnectAction MESIBlock::updateState(bool is_write) {
     case MESI::M:
       // no interconnect events necessary, just stays in modified state
       hit_count_++;
-      break;
+      return InterconnectAction::NOACTION;
     case MESI::E:
       if (is_write) {
         // no interconnect event, just silent upgrade
         state_ = MESI::M;
       }
+      // nothing to be done in read case, still have exclusive access
       hit_count_++;
-      break;
+      return InterconnectAction::NOACTION;
     case MESI::S:
       if (is_write) {
         // TODO(samflattery) consider this a miss as the upgrade is required?
         miss_count_++;
         state_ = MESI::S;
         return InterconnectAction::BUSRDX;
+      } else {
+        // nothing to be done in read case, stays in shared state
+        hit_count_++;
+        return InterconnectAction::NOACTION;
       }
-      hit_count_++;
-      // nothing to be done in read case, stays in shared state
-      break;
     case MESI::I:
+      // invalid so it's always a miss regardless of read/write
       miss_count_++;
       if (is_write) {
         state_ = MESI::M;
@@ -45,9 +48,9 @@ InterconnectAction MESIBlock::updateState(bool is_write) {
         state_ = MESI::E;
         return InterconnectAction::BUSRD;
       }
-      break;
+    default:
+      return InterconnectAction::BUSRD;
   }
-  return InterconnectAction::NOACTION;
 }
 
 InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag) {
@@ -64,6 +67,24 @@ InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag) {
   state_ = MESI::I;
 
   return updateState(is_write);
+}
+
+std::ostream& operator<<(std::ostream& os, const MESI& mesi) {
+  switch (mesi) {
+    case MESI::M:
+      os << "M";
+      break;
+    case MESI::E:
+      os << "E";
+      break;
+    case MESI::S:
+      os << "S";
+      break;
+    case MESI::I:
+      os << "I";
+      break;
+  }
+  return os;
 }
 
 bool MESIBlock::isValid() { return state_ != MESI::I; }
