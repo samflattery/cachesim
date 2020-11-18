@@ -83,7 +83,6 @@ VOID Instruction(INS ins, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
-  fprintf(trace, "#eof\n");
   fclose(trace);
 }
 
