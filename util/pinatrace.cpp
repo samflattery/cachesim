@@ -14,7 +14,28 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include "pin.H"
+#include <cpuid.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#define CPUID(INFO, LEAF, SUBLEAF) __cpuid_count(LEAF, SUBLEAF, INFO[0], INFO[1], INFO[2], INFO[3])
+
+#define GETCPU(CPU) {                              \
+        uint32_t CPUInfo[4];                           \
+        CPUID(CPUInfo, 1, 0);                          \
+        /* CPUInfo[1] is EBX, bits 24-31 are APIC ID */ \
+        if ( (CPUInfo[3] & (1 << 9)) == 0) {           \
+          CPU = -1;  /* no APIC on chip */             \
+        }                                              \
+        else {                                         \
+          CPU = (unsigned)CPUInfo[1] >> 24;                    \
+        }                                              \
+        if (CPU < 0) CPU = 0;                          \
+      }
 
 
 FILE * trace;
@@ -22,13 +43,18 @@ FILE * trace;
 // Print a memory read record
 VOID RecordMemRead(VOID * ip, VOID * addr)
 {
-    fprintf(trace,"0 R %llx\n", (unsigned long long) addr);
+
+    int x;
+    GETCPU(x);
+    fprintf(trace,"%d: W %p\n", x, addr);
 }
 
 // Print a memory write record
 VOID RecordMemWrite(VOID * ip, VOID * addr)
 {
-    fprintf(trace,"0 W %llx\n", (unsigned long long) addr);
+    int x;
+    GETCPU(x);
+    fprintf(trace,"%d: W %p\n", x, addr);
 }
 
 // Is called for every instruction and instruments reads and writes
