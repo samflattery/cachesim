@@ -24,17 +24,24 @@
 FILE *trace;
 PIN_LOCK lock;
 
-#define CPUID(INFO, LEAF, SUBLEAF) __cpuid_count(LEAF, SUBLEAF, INFO[0], INFO[1], INFO[2], INFO[3])
 
-// TODO(bwei98) add documentation on what __cpuid_count does and what APIC is
+/* __cpuid_count gets information of the cpu and puts values using cpuid x86 instruction
+ * ** should technically first check eflags that cpuid instruction exists
+ * More info here: https://en.wikipedia.org/wiki/CPUID
+ *
+ * Each cpu has a core and APIC (advanced programmable interrupt controller)
+ * CPUInfo[1] (EBX) bits 31-24 is the APIC ID, which we extract and return.
+ * Since there is a one-to-one correspondance of APIC and cpu, we will use these numbers
+ * More info here: https://wiki.osdev.org/APIC
+ */
 int getCPU() {
   int CPU;
   static uint32_t CPUInfo[4];
-  CPUID(CPUInfo, 1, 0);
-  /* CPUInfo[1] is EBX, bits 24-31 are APIC ID */
+  __cpuid_count(1, 0, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
   if ((CPUInfo[3] & (1 << 9)) == 0) {
     CPU = -1; /* no APIC on chip */
   } else {
+    /* CPUInfo[1] is EBX, bits 24-31 are APIC ID */
     CPU = (unsigned)CPUInfo[1] >> 24;
   }
   if (CPU < 0) CPU = 0;
