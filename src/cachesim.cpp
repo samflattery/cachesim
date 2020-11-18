@@ -15,7 +15,12 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, bool ve
   caches[0].printState();
   Directory directory(procs, b);
 
-  Interconnect interconnect(&caches, &directory, verbose);
+  Interconnect *interconnect;
+  if (procs > 1) {
+    interconnect = new Interconnect(&caches, &directory, verbose);
+  } else {
+    interconnect = nullptr;
+  }
 
   int proc;
   char rw;
@@ -35,6 +40,10 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, bool ve
 
   for (const auto &cache : caches) {
     cache.printStats();
+  }
+  if (interconnect != nullptr) {
+    interconnect->printStats();
+    delete interconnect;
   }
 }
 

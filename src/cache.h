@@ -40,15 +40,22 @@ class Cache {
   void cacheWrite(unsigned long addr);
   void cacheRead(unsigned long addr);
 
+  // get stats about the cache
   void printState() const;
   void printStats() const;
+  int getCacheId() const;
 
+  // add an interconnect to the local variables
   void connectToInterconnect(Interconnect* interconnect);
 
   // *** communication with interconnect ***
+  // invalidate a line
   void receiveInvalidate(long addr);
+  // send the data in a line back to the directory
   void receiveFetch(long addr);
+  // receive directory's response to a read miss
   void receiveReadMiss(long addr, bool exclusive);
+  // receive directory's response to a write miss
   void receiveWriteMiss(long addr);
 
  private:
@@ -74,16 +81,15 @@ class Cache {
   void performInterconnectAction(InterconnectAction action, unsigned long addr);
 
   // send a message over the interconnect saying that this memory address has
-  // been evicted so this cache no longer has ownership of it tag is the tag of
-  // the evicted bit addr is the address of the new block, which is used to add
-  // the set bits back to tag
+  // been evicted so this cache no longer has ownership of it
+  // tag is the tag of the evicted bit
+  // addr is the address of the new block, which is used to add the set bits back to tag
   void sendEviction(unsigned long tag, unsigned long addr);
-
-  int getCacheId() const;
 
   size_t getHitCount() const;
   size_t getMissCount() const;
   size_t getEvictionCount() const;
+  size_t getInvalidationCount() const;
   size_t getDirtyEvictionCount() const;
 
   int cache_id_;
@@ -95,9 +101,10 @@ class Cache {
   int b_;
   int B_;
 
-  // the interconnect through which messages to the directory are sent can be
-  // nullptr when running with a single cache
+  // the interconnect through which messages to the directory are sent
+  // can be nullptr when running with a single cache
   Interconnect* interconnect_;
 
+  // the sets making up the cache
   std::vector<std::shared_ptr<Set>> sets_;
 };

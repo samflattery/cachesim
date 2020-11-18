@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <iostream>
 
 #include "cache_block.h"
@@ -21,8 +22,8 @@ class MESIBlock : public CacheBlock {
 
   virtual void invalidate() override;
   virtual void flush() override;
-  virtual void readMiss(bool exclusive) override;
-  virtual void writeMiss() override;
+  virtual void receiveReadData(bool exclusive) override;
+  virtual void receiveWriteData() override;
 
  private:
   InterconnectAction updateState(bool is_write) override;

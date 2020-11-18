@@ -25,10 +25,14 @@ class Interconnect {
   void sendFetch(int dest, long addr);
   void sendInvalidate(int dest, long addr);
 
+  void printStats();
+
  private:
   std::vector<Cache> *caches_;
   Directory *directory_;
 
-  unsigned long total_events_;
+  unsigned long cache_events_;
+  unsigned long directory_events_;
+
   bool verbose_;
 };

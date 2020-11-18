@@ -142,12 +142,12 @@ void Cache::receiveFetch(long addr) {
 
 void Cache::receiveReadMiss(long addr, bool exclusive) {
   auto block = findInCache(addr);
-  block->readMiss(exclusive);
+  block->receiveReadData(exclusive);
 }
 
 void Cache::receiveWriteMiss(long addr) {
   auto block = findInCache(addr);
-  block->writeMiss();
+  block->receiveWriteData();
 }
 
 size_t Cache::getHitCount() const {
@@ -180,6 +180,16 @@ size_t Cache::getEvictionCount() const {
   return count;
 }
 
+size_t Cache::getInvalidationCount() const {
+  size_t count = 0;
+  for (auto set : sets_) {
+    for (auto block : set->blocks_) {
+      count += block->getInvalidationCount();
+    }
+  }
+  return count;
+}
+
 size_t Cache::getDirtyEvictionCount() const {
   size_t count = 0;
   for (auto set : sets_) {
@@ -201,5 +211,6 @@ void Cache::printStats() const {
             << "miss_count:\t\t" << getMissCount() << "\n"
             << "hit_count:\t\t" << getHitCount() << "\n"
             << "eviction_count:\t\t" << getEvictionCount() << "\n"
+            << "invalidation_count:\t" << getInvalidationCount() << "\n"
             << "dirty_blocks_evicted:\t" << getDirtyEvictionCount() << "\n\n";
 }
