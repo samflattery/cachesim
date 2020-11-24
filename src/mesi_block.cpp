@@ -89,10 +89,16 @@ std::ostream& operator<<(std::ostream& os, const MESI& mesi) {
 
 bool MESIBlock::isValid() { return state_ != MESI::I; }
 
-void MESIBlock::invalidate() { state_ = MESI::I; }
+void MESIBlock::invalidate() {
+  invalidations_++;
+  state_ = MESI::I;
+}
 
-void MESIBlock::flush() { state_ = MESI::S; }
+void MESIBlock::flush() {
+  assert(state_ == MESI::E || state_ == MESI::M);
+  state_ = MESI::S;
+}
 
-void MESIBlock::readMiss(bool exclusive) { state_ = exclusive ? MESI::E : MESI::S; }
+void MESIBlock::receiveReadData(bool exclusive) { state_ = exclusive ? MESI::E : MESI::S; }
 
-void MESIBlock::writeMiss() { state_ = MESI::M; }
+void MESIBlock::receiveWriteData() { state_ = MESI::M; }
