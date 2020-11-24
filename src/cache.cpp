@@ -1,7 +1,14 @@
 #include "cache.h"
 
-Cache::Cache(int id, int s, int E, int b)
-    : cache_id_(id), s_(s), S_(1 << s), E_(E), b_(b), B_(1 << b), interconnect_(nullptr) {
+Cache::Cache(int id, int numa_node, int s, int E, int b)
+    : cache_id_(id),
+      numa_node_(numa_node),
+      s_(s),
+      S_(1 << s),
+      E_(E),
+      b_(b),
+      B_(1 << b),
+      interconnect_(nullptr) {
   // construct sets in a loop to make sure that they are not copied pointers
   sets_.reserve(S_);
   for (int i = 0; i < S_; i++) {
@@ -43,18 +50,18 @@ CacheBlock* Cache::findInSet(long tag, std::shared_ptr<Set> set) {
   return found;
 }
 
-void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr, bool is_write) {
+void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set, Address address, bool is_write) {
   // find the block with the largest last_used time stamp
   auto LRU_block = std::max_element(
       set->blocks_.begin(), set->blocks_.end(),
       [](auto const& lhs, auto const& rhs) { return lhs->getLastUsed() <= rhs->getLastUsed(); });
 
   if ((*LRU_block)->isValid()) {
-    sendEviction((*LRU_block)->getTag(), addr);
+    sendEviction((*LRU_block)->getTag(), address.addr);
   }
 
   InterconnectAction action = (*LRU_block)->evictAndReplace(is_write, tag);
-  performInterconnectAction(action, addr);
+  performInterconnectAction(action, address);
 }
 
 void Cache::sendEviction(unsigned long tag, unsigned long addr) {
@@ -72,7 +79,8 @@ void Cache::sendEviction(unsigned long tag, unsigned long addr) {
   old_addr = tag | set_bits;
 
   // send message over interconnect to directory
-  interconnect_->sendEviction(cache_id_, old_addr);
+  // TODO(samflattery) how do we know which directory to send eviction to ??
+  interconnect_->sendEviction(cache_id_, {old_addr, 1});
 }
 
 CacheBlock* Cache::findInCache(long addr) {
@@ -84,8 +92,8 @@ CacheBlock* Cache::findInCache(long addr) {
   return block;
 }
 
-void Cache::performOperation(unsigned long addr, bool is_write) {
-  auto pair = readAddr(addr);
+void Cache::performOperation(Address address, bool is_write) {
+  auto pair = readAddr(address.addr);
   long tag = pair.first;
   auto set = pair.second;
 
@@ -98,27 +106,27 @@ void Cache::performOperation(unsigned long addr, bool is_write) {
     } else {
       action = block->readBlock();
     }
-    performInterconnectAction(action, addr);
+    performInterconnectAction(action, address);
     return;
   }
 
   // we missed in the cache and something needs to be evicted
-  evictAndReplace(tag, set, addr, is_write);
+  evictAndReplace(tag, set, address, is_write);
 }
 
-void Cache::cacheRead(unsigned long addr) { return performOperation(addr, /* is_write */ false); }
+void Cache::cacheRead(Address address) { return performOperation(address, /* is_write */ false); }
 
-void Cache::cacheWrite(unsigned long addr) { return performOperation(addr, /* is_write */ true); }
+void Cache::cacheWrite(Address address) { return performOperation(address, /* is_write */ true); }
 
-void Cache::performInterconnectAction(InterconnectAction action, unsigned long addr) {
+void Cache::performInterconnectAction(InterconnectAction action, Address address) {
   if (interconnect_ == nullptr) return;
 
   switch (action) {
     case InterconnectAction::BUSRD:
-      interconnect_->sendBusRd(cache_id_, addr);
+      interconnect_->sendBusRd(cache_id_, address);
       break;
     case InterconnectAction::BUSRDX:
-      interconnect_->sendBusRdX(cache_id_, addr);
+      interconnect_->sendBusRdX(cache_id_, address);
       break;
     case InterconnectAction::FLUSH:
       // TODO(samflattery) add flush case

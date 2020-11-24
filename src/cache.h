@@ -11,6 +11,11 @@
 
 #define ADDR_LEN 64L
 
+struct Address {
+  unsigned long addr;
+  int numa_node;
+};
+
 // defines a cache set as a set of blocks
 struct Set {
   Set(int associativity) {
@@ -34,11 +39,11 @@ class Cache {
  public:
   // construct a new cache with given id with 2^s sets, 2^b bytes per block and
   // associativity E
-  Cache(int id, int s, int E, int b);
+  Cache(int id, int numa_node, int s, int E, int b);
 
   // perform a read / write to a given address
-  void cacheWrite(unsigned long addr);
-  void cacheRead(unsigned long addr);
+  void cacheWrite(Address address);
+  void cacheRead(Address address);
 
   // get stats about the cache
   void printState() const;
@@ -60,7 +65,7 @@ class Cache {
 
  private:
   // perform a read / write to given address
-  void performOperation(unsigned long addr, bool is_write);
+  void performOperation(Address address, bool is_write);
 
   // get the tag and set of an address
   std::pair<long, std::shared_ptr<Set>> readAddr(unsigned long addr);
@@ -70,15 +75,13 @@ class Cache {
   CacheBlock* findInSet(long tag, std::shared_ptr<Set> set);
 
   // find the block that the address maps to
-  // asserts that the block is in the cache, since this method is used in the
-  // interconnect callbacks
   CacheBlock* findInCache(long addr);
 
   // evict the LRU block in the cache and set the state of the replacement block
-  void evictAndReplace(long tag, std::shared_ptr<Set> set, unsigned long addr, bool is_write);
+  void evictAndReplace(long tag, std::shared_ptr<Set> set, Address address, bool is_write);
 
   // send a given message over the interconnect
-  void performInterconnectAction(InterconnectAction action, unsigned long addr);
+  void performInterconnectAction(InterconnectAction action, Address address);
 
   // send a message over the interconnect saying that this memory address has
   // been evicted so this cache no longer has ownership of it
@@ -93,6 +96,7 @@ class Cache {
   size_t getDirtyEvictionCount() const;
 
   int cache_id_;
+  int numa_node_;
 
   // the settings of the cache such as line size
   int s_;

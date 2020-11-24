@@ -18,7 +18,9 @@ long Directory::getAddr(long addr) {
   return addr & block_mask;
 }
 
-void Directory::connectToInterconnect(Interconnect *interconnect) { interconnect_ = interconnect; }
+void Directory::connectToInterconnect(Interconnect *interconnect) {
+  interconnect_ = interconnect;
+}
 
 int Directory::findOwner(DirectoryLine *line) {
   assert(line->state_ == DirectoryState::EM);
@@ -89,12 +91,17 @@ void Directory::receiveBusRd(int cache_id, long address) {
       break;
     case DirectoryState::EM:
       // downgrade the owner and get him to flush, now in shared state
-      int owner_id = findOwner(line);
-      interconnect_->sendFetch(owner_id, addr);
-      line->presence_[cache_id] = true;
-      interconnect_->sendReadMiss(cache_id, addr, /* exclusive */ false);
+      {
+        int owner_id = findOwner(line);
+        interconnect_->sendFetch(owner_id, addr);
+        line->presence_[cache_id] = true;
+        interconnect_->sendReadMiss(cache_id, addr, /* exclusive */ false);
+      }
 
       line->state_ = DirectoryState::S;
+      break;
+    default:
+      assert(false);
       break;
   }
 }
