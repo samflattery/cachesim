@@ -10,8 +10,8 @@ NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, bool 
     caches_.push_back(Cache(procs_per_node_ * node_id + i, node_id, s, E, b));
   }
 
-  std::cout << "Running simulation with cache settings:\n";
   if (node_id == 0) {
+    std::cout << "Running simulation with cache settings:\n";
     caches_[0].printState();
   }
 

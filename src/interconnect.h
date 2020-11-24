@@ -12,10 +12,10 @@ class Directory;
 // defined in cache.h
 struct Address;
 
-// models an interconnect that the directories, caches, and NUMA nodes communicate through
-// the interconnect simulates an interconnect internal to one node, as well as an interconnect
-// between NUMA regions, by storing interconnects of other regions and keeping stats on when
-// messages are sent between NUMA regions
+// models an interconnect that the directories, caches, and NUMA nodes can communicate through
+// acts as both the interconnect beween components in one UMA address space, as well as a larger
+// global interconnect between NUMA addres spaces by maintaining a list of all interconnects in other
+// NUMA nodes and updating stats differently when messages are being sent between nodes
 class Interconnect {
  public:
   Interconnect(int numa_node, int num_numa_nodes, int num_procs, std::vector<Cache> *caches,
@@ -47,13 +47,15 @@ class Interconnect {
   std::vector<Cache> *caches_;
   Directory *directory_;
 
-  // all of the other interconnects in the NUMA network
-  // interconnects_[i] corresponds to the interconnect of NUMA node i
+  // all of the other interconnects on the NUMA system
+  // interconnects_[i] is the interconnect of NUMA node i, so that we can pass messages between NUMA
+  // nodes
   std::vector<Interconnect *> interconnects_;
 
   unsigned long cache_events_;
   unsigned long directory_events_;
-  unsigned long global_interconnect_events_;
+  // messages being sent between nodes
+  unsigned long global_events_;
 
   bool verbose_;
 };

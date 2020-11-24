@@ -27,7 +27,8 @@ void Interconnect::connectInterconnect(Interconnect *interconnect, int id) {
 
 void Interconnect::sendBusRd(int src, Address address) {
   if (address.numa_node != numa_node_) {
-    global_interconnect_events_++;
+    global_events_++;
+    if (verbose_)
     std::cout << "sending over the main interconnect from " << numa_node_ << " to "
               << address.numa_node << "\n";
     interconnects_[address.numa_node]->sendBusRd(src, address);
@@ -42,7 +43,8 @@ void Interconnect::sendBusRd(int src, Address address) {
 
 void Interconnect::sendBusRdX(int src, Address address) {
   if (address.numa_node != numa_node_) {
-    global_interconnect_events_++;
+    global_events_++;
+    if (verbose_)
     std::cout << "sending over the main interconnect from " << numa_node_ << " to "
               << address.numa_node << "\n";
     interconnects_[address.numa_node]->sendBusRdX(src, address);
@@ -57,7 +59,8 @@ void Interconnect::sendBusRdX(int src, Address address) {
 
 void Interconnect::sendEviction(int src, Address address) {
   if (address.numa_node != numa_node_) {
-    global_interconnect_events_++;
+    global_events_++;
+    if (verbose_)
     std::cout << "sending over the main interconnect from " << numa_node_ << " to "
               << address.numa_node << "\n";
     interconnects_[address.numa_node]->sendEviction(src, address);
@@ -78,7 +81,8 @@ void Interconnect::sendFetch(int dest, long addr) {
   int dest_node;
   // the message might need to be sent to a cache on a different NUMA node
   if ((dest_node = getNode(dest)) != numa_node_) {
-    global_interconnect_events_++;
+    global_events_++;
+    if (verbose_)
     std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
               << "\n";
     interconnects_[dest_node]->sendFetch(dest, addr);
@@ -94,7 +98,8 @@ void Interconnect::sendFetch(int dest, long addr) {
 void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
-    global_interconnect_events_++;
+    global_events_++;
+    if (verbose_)
     std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
               << "\n";
     interconnects_[dest_node]->sendReadMiss(dest, addr, exclusive);
@@ -110,7 +115,8 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
 void Interconnect::sendWriteMiss(int dest, long addr) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
-    global_interconnect_events_++;
+    global_events_++;
+    if (verbose_)
     std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
               << "\n";
     interconnects_[dest_node]->sendWriteMiss(dest, addr);
@@ -126,7 +132,8 @@ void Interconnect::sendWriteMiss(int dest, long addr) {
 void Interconnect::sendInvalidate(int dest, long addr) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
-    global_interconnect_events_++;
+    global_events_++;
+    if (verbose_)
     std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
               << "\n";
     interconnects_[dest_node]->sendInvalidate(dest, addr);

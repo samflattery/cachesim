@@ -2,6 +2,7 @@
 #include "cache.h"
 #include "interconnect.h"
 
+// bundles up a set of caches, a directory, and an interconnect into NUMA node
 class NUMA {
  public:
   NUMA(int num_procs, int nodes, int node_id, int s, int E, int b, bool verbose = false);
