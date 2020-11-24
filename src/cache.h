@@ -11,7 +11,8 @@
 
 #define ADDR_LEN 64L
 
-// a NUMA address, which contains the memory address as well as the NUMA node on which that memory lives
+// a NUMA address, which contains the memory address as well as the NUMA node on which that memory
+// lives
 struct Address {
   unsigned long addr;
   int numa_node;

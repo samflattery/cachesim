@@ -14,8 +14,8 @@ struct Address;
 
 // models an interconnect that the directories, caches, and NUMA nodes can communicate through
 // acts as both the interconnect beween components in one UMA address space, as well as a larger
-// global interconnect between NUMA addres spaces by maintaining a list of all interconnects in other
-// NUMA nodes and updating stats differently when messages are being sent between nodes
+// global interconnect between NUMA addres spaces by maintaining a list of all interconnects in
+// other NUMA nodes and updating stats differently when messages are being sent between nodes
 class Interconnect {
  public:
   Interconnect(int numa_node, int num_numa_nodes, int num_procs, std::vector<Cache> *caches,

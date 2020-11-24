@@ -29,8 +29,8 @@ void Interconnect::sendBusRd(int src, Address address) {
   if (address.numa_node != numa_node_) {
     global_events_++;
     if (verbose_)
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to "
-              << address.numa_node << "\n";
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to "
+                << address.numa_node << "\n";
     interconnects_[address.numa_node]->sendBusRd(src, address);
   } else {
     if (verbose_)
@@ -45,8 +45,8 @@ void Interconnect::sendBusRdX(int src, Address address) {
   if (address.numa_node != numa_node_) {
     global_events_++;
     if (verbose_)
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to "
-              << address.numa_node << "\n";
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to "
+                << address.numa_node << "\n";
     interconnects_[address.numa_node]->sendBusRdX(src, address);
   } else {
     if (verbose_)
@@ -61,8 +61,8 @@ void Interconnect::sendEviction(int src, Address address) {
   if (address.numa_node != numa_node_) {
     global_events_++;
     if (verbose_)
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to "
-              << address.numa_node << "\n";
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to "
+                << address.numa_node << "\n";
     interconnects_[address.numa_node]->sendEviction(src, address);
   } else {
     if (verbose_)
@@ -73,9 +73,7 @@ void Interconnect::sendEviction(int src, Address address) {
   }
 }
 
-int Interconnect::getNode(int dest) {
-  return dest / (num_procs_ / num_numa_nodes_);
-}
+int Interconnect::getNode(int dest) { return dest / (num_procs_ / num_numa_nodes_); }
 
 void Interconnect::sendFetch(int dest, long addr) {
   int dest_node;
@@ -83,8 +81,8 @@ void Interconnect::sendFetch(int dest, long addr) {
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
     if (verbose_)
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
-              << "\n";
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+                << "\n";
     interconnects_[dest_node]->sendFetch(dest, addr);
   } else {
     if (verbose_)
@@ -100,8 +98,8 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
     if (verbose_)
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
-              << "\n";
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+                << "\n";
     interconnects_[dest_node]->sendReadMiss(dest, addr, exclusive);
   } else {
     if (verbose_)
@@ -117,8 +115,8 @@ void Interconnect::sendWriteMiss(int dest, long addr) {
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
     if (verbose_)
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
-              << "\n";
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+                << "\n";
     interconnects_[dest_node]->sendWriteMiss(dest, addr);
   } else {
     if (verbose_)
@@ -134,8 +132,8 @@ void Interconnect::sendInvalidate(int dest, long addr) {
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
     if (verbose_)
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
-              << "\n";
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+                << "\n";
     interconnects_[dest_node]->sendInvalidate(dest, addr);
   } else {
     if (verbose_)
