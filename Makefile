@@ -1,6 +1,6 @@
 CC = gcc
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Wshadow -Wpedantic -fsanitize=address
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wshadow -Wpedantic
 DEPS = numa_node.h cache_block.h mesi_block.h directory.h cache.h interconnect.h
 OBJDIR = build
 vpath %.h src

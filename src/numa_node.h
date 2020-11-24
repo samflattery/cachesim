@@ -2,6 +2,7 @@
 #include "cache.h"
 #include "interconnect.h"
 
+// bundles up a set of caches, a directory, and an interconnect into NUMA node
 class NUMA {
  public:
   NUMA(int num_procs, int nodes, int node_id, int s, int E, int b, bool verbose = false);
@@ -16,10 +17,10 @@ class NUMA {
   std::pair<Interconnect *, int> getInterconnect();
 
  private:
-  int procs_per_node_;
   int node_id_;
   int num_nodes_;
   int num_procs_;
+  int procs_per_node_;
 
   std::vector<Cache> caches_;
   Directory directory_;

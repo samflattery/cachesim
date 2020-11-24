@@ -11,6 +11,7 @@
 
 #define ADDR_LEN 64L
 
+// a NUMA address, which contains the memory address as well as the NUMA node on which that memory lives
 struct Address {
   unsigned long addr;
   int numa_node;
@@ -96,7 +97,7 @@ class Cache {
   size_t getDirtyEvictionCount() const;
 
   int cache_id_;
-  int numa_node_;
+  [[maybe_unused]] int numa_node_;
 
   // the settings of the cache such as line size
   int s_;
