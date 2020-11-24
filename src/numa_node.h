@@ -16,10 +16,10 @@ class NUMA {
   std::pair<Interconnect *, int> getInterconnect();
 
  private:
-  int procs_per_node_;
   int node_id_;
   int num_nodes_;
   int num_procs_;
+  int procs_per_node_;
 
   std::vector<Cache> caches_;
   Directory directory_;

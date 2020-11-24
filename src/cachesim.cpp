@@ -7,11 +7,12 @@
 #include "interconnect.h"
 #include "numa_node.h"
 
+// returns the NUMA node proc is on
 int procToNode(int proc, int num_procs, int numa_nodes) {
   return proc / (num_procs / numa_nodes);
-  /* return proc % numa_nodes; */
 }
 
+// connect all of the NUMA regions interconnects, so node1->interconnect_[i] == node->interconnect_[i]
 void setupInterconnects(std::vector<NUMA *> &nodes) {
   for (auto node : nodes) {
     for (auto node1 : nodes) {
