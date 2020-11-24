@@ -12,7 +12,7 @@ int procToNode(int proc, int num_procs, int numa_nodes) {
   /* return proc % numa_nodes; */
 }
 
-void setupInterconnects(std::vector<NUMA*> &nodes) {
+void setupInterconnects(std::vector<NUMA *> &nodes) {
   for (auto node : nodes) {
     for (auto node1 : nodes) {
       node1->connectInterconnect(node->getInterconnect());
@@ -20,8 +20,9 @@ void setupInterconnects(std::vector<NUMA*> &nodes) {
   }
 }
 
-void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes, bool verbose) {
-  std::vector<NUMA*> nodes;
+void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
+                   bool verbose) {
+  std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
     NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, verbose);
     nodes.push_back(node);
@@ -29,14 +30,16 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
 
   setupInterconnects(nodes);
 
-  int proc; // the requesting proc
-  char rw;  // whether it is a read or write
-  int node_id; // the node where addr resides
+  int proc;     // the requesting proc
+  char rw;      // whether it is a read or write
+  int node_id;  // the node where addr resides
   unsigned long addr;
 
   while (trace >> proc >> rw >> std::hex >> addr >> std::dec >> node_id) {
     if (verbose) {
-      std::cout << "\n" << proc << " " << rw << " " << std::hex << addr << std::dec << " " << node_id << "\n";
+      std::cout << "\n"
+                << proc << " " << rw << " " << std::hex << addr << std::dec << " " << node_id
+                << "\n";
     }
 
     // get the NUMA node that the requesting proc belongs to

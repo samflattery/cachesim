@@ -1,7 +1,11 @@
 #include "numa_node.h"
 
 NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, bool verbose)
-    : procs_per_node_(num_procs / num_nodes), node_id_(node_id), num_nodes_(num_nodes), num_procs_(num_procs), directory_(num_procs, b) {
+    : procs_per_node_(num_procs / num_nodes),
+      node_id_(node_id),
+      num_nodes_(num_nodes),
+      num_procs_(num_procs),
+      directory_(num_procs, b) {
   for (int i = 0; i < procs_per_node_; ++i) {
     caches_.push_back(Cache(procs_per_node_ * node_id + i, node_id, s, E, b));
   }
@@ -14,9 +18,7 @@ NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, bool 
   interconnect_ = new Interconnect(node_id, num_nodes, num_procs, &caches_, &directory_, verbose);
 }
 
-NUMA::~NUMA() {
-  delete interconnect_;
-}
+NUMA::~NUMA() { delete interconnect_; }
 
 void NUMA::connectInterconnect(std::pair<Interconnect *, int> pair) {
   interconnect_->connectInterconnect(pair.first, pair.second);
@@ -34,7 +36,7 @@ void NUMA::cacheWrite(int proc, unsigned long addr, int numa_node) {
 
 void NUMA::printStats() const {
   std::cout << "\tNUMA NODE: " << node_id_ << "\n"
-            << "\t-----------" ;
+            << "\t-----------";
   for (const auto &cache : caches_) {
     cache.printStats();
   }

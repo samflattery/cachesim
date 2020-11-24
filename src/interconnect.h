@@ -15,8 +15,8 @@ struct Address;
 // models an interconnect that the directory and cache will communicate through
 class Interconnect {
  public:
-  Interconnect(int numa_node, int num_numa_nodes, int num_procs, std::vector<Cache> *caches, Directory *directory,
-               bool verbose = false);
+  Interconnect(int numa_node, int num_numa_nodes, int num_procs, std::vector<Cache> *caches,
+               Directory *directory, bool verbose = false);
   void connectInterconnect(Interconnect *interconnect, int id);
 
   // cache -> directory messages

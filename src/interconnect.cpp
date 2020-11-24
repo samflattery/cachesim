@@ -1,7 +1,7 @@
 #include "interconnect.h"
 
-Interconnect::Interconnect(int numa_node, int num_numa_nodes, int num_procs, std::vector<Cache> *caches,
-                           Directory *directory, bool verbose)
+Interconnect::Interconnect(int numa_node, int num_numa_nodes, int num_procs,
+                           std::vector<Cache> *caches, Directory *directory, bool verbose)
     : numa_node_(numa_node),
       num_numa_nodes_(num_numa_nodes),
       num_procs_(num_procs),
@@ -76,8 +76,8 @@ void Interconnect::sendFetch(int dest, long addr) {
   int dest_node;
   // the message might need to be sent to a cache on a different NUMA node
   if ((dest_node = getNode(dest)) != numa_node_) {
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to "
-              << dest_node << "\n";
+    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+              << "\n";
     interconnects_[dest_node]->sendFetch(dest, addr);
   } else {
     if (verbose_)
@@ -91,8 +91,8 @@ void Interconnect::sendFetch(int dest, long addr) {
 void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to "
-              << dest_node << "\n";
+    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+              << "\n";
     interconnects_[dest_node]->sendReadMiss(dest, addr, exclusive);
   } else {
     if (verbose_)
@@ -106,8 +106,8 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
 void Interconnect::sendWriteMiss(int dest, long addr) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to "
-              << dest_node << "\n";
+    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+              << "\n";
     interconnects_[dest_node]->sendWriteMiss(dest, addr);
   } else {
     if (verbose_)
@@ -121,8 +121,8 @@ void Interconnect::sendWriteMiss(int dest, long addr) {
 void Interconnect::sendInvalidate(int dest, long addr) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
-    std::cout << "sending over the main interconnect from " << numa_node_ << " to "
-              << dest_node << "\n";
+    std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
+              << "\n";
     interconnects_[dest_node]->sendInvalidate(dest, addr);
   } else {
     if (verbose_)

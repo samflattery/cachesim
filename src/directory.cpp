@@ -18,9 +18,7 @@ long Directory::getAddr(long addr) {
   return addr & block_mask;
 }
 
-void Directory::connectToInterconnect(Interconnect *interconnect) {
-  interconnect_ = interconnect;
-}
+void Directory::connectToInterconnect(Interconnect *interconnect) { interconnect_ = interconnect; }
 
 int Directory::findOwner(DirectoryLine *line) {
   assert(line->state_ == DirectoryState::EM);
