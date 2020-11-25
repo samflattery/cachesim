@@ -41,6 +41,11 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
                 << proc << " " << rw << " " << std::hex << addr << std::dec << " " << node_id
                 << "\n";
     }
+    if (node_id >= numa_nodes or proc >= procs) {
+        std::cout << "Trace requires that p >= " << procs << " and n >= " << numa_nodes << "\n";
+        exit(1);
+    }
+
 
     // get the NUMA node that the requesting proc belongs to
     int proc_node = procToNode(proc, procs, numa_nodes);
