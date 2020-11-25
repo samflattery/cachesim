@@ -57,14 +57,14 @@ void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set, Address address,
       [](auto const& lhs, auto const& rhs) { return lhs->getLastUsed() <= rhs->getLastUsed(); });
 
   if ((*LRU_block)->isValid()) {
-    sendEviction((*LRU_block)->getTag(), address.addr);
+    sendEviction((*LRU_block)->getTag(), address.addr, (*LRU_block)->getNumaNode());
   }
 
-  InterconnectAction action = (*LRU_block)->evictAndReplace(is_write, tag);
+  InterconnectAction action = (*LRU_block)->evictAndReplace(is_write, tag, address.numa_node);
   performInterconnectAction(action, address);
 }
 
-void Cache::sendEviction(unsigned long tag, unsigned long addr) {
+void Cache::sendEviction(unsigned long tag, unsigned long addr, int numa_node) {
   if (interconnect_ == nullptr) return;
 
   // reconstruct the address using the tag and set bits of addr
@@ -79,8 +79,7 @@ void Cache::sendEviction(unsigned long tag, unsigned long addr) {
   old_addr = tag | set_bits;
 
   // send message over interconnect to directory
-  // TODO(samflattery) how do we know which directory to send eviction to ??
-  interconnect_->sendEviction(cache_id_, {old_addr, 1});
+  interconnect_->sendEviction(cache_id_, {old_addr, numa_node});
 }
 
 CacheBlock* Cache::findInCache(long addr) {
@@ -102,9 +101,9 @@ void Cache::performOperation(Address address, bool is_write) {
   if (block != nullptr) {
     InterconnectAction action;
     if (is_write) {
-      action = block->writeBlock();
+      action = block->writeBlock(address.numa_node);
     } else {
-      action = block->readBlock();
+      action = block->readBlock(address.numa_node);
     }
     performInterconnectAction(action, address);
     return;

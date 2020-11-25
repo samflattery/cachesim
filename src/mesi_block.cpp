@@ -2,14 +2,16 @@
 
 MESIBlock::MESIBlock() : CacheBlock(), state_(MESI::I) {}
 
-InterconnectAction MESIBlock::readBlock() {
+InterconnectAction MESIBlock::readBlock(int numa_node) {
   last_used_ = 0;
+  numa_node_ = numa_node;
   return updateState(false);
 }
 
-InterconnectAction MESIBlock::writeBlock() {
+InterconnectAction MESIBlock::writeBlock(int numa_node) {
   last_used_ = 0;
   dirty_ = true;
+  numa_node_ = numa_node;
   return updateState(true);
 }
 
@@ -53,7 +55,7 @@ InterconnectAction MESIBlock::updateState(bool is_write) {
   }
 }
 
-InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag) {
+InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag, int new_node) {
   if (state_ != MESI::I) {
     if (dirty_) {
       dirty_evictions_++;
@@ -64,6 +66,7 @@ InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag) {
   tag_ = tag;
   dirty_ = is_write;
   last_used_ = 0;
+  numa_node_ = new_node;
   state_ = MESI::I;
 
   return updateState(is_write);

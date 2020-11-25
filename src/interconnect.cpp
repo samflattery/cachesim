@@ -148,6 +148,6 @@ void Interconnect::printStats() {
   std::cout << "*** Interconnect Events ***\n"
             << "Cache Events:\t" << cache_events_ << "\n"
             << "Directory Events:\t" << directory_events_ << "\n"
-            << "Global Interconnect Events:\t" << global_interconnect_events_ << "\n"
+            << "Global Interconnect Events:\t" << global_events_ << "\n"
             << "Total events:\t" << cache_events_ + directory_events_ << "\n";
 }

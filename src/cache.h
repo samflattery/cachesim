@@ -89,7 +89,8 @@ class Cache {
   // been evicted so this cache no longer has ownership of it
   // tag is the tag of the evicted bit
   // addr is the address of the new block, which is used to add the set bits back to tag
-  void sendEviction(unsigned long tag, unsigned long addr);
+  // numa_node is the node to send the eviction to
+  void sendEviction(unsigned long tag, unsigned long addr, int numa_node);
 
   size_t getHitCount() const;
   size_t getMissCount() const;

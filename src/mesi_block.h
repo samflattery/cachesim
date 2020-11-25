@@ -15,10 +15,10 @@ class MESIBlock : public CacheBlock {
 
   virtual bool isValid() override;
 
-  virtual InterconnectAction writeBlock() override;
-  virtual InterconnectAction readBlock() override;
+  virtual InterconnectAction writeBlock(int numa_node) override;
+  virtual InterconnectAction readBlock(int numa_node) override;
 
-  virtual InterconnectAction evictAndReplace(bool is_write, long tag) override;
+  virtual InterconnectAction evictAndReplace(bool is_write, long tag, int new_node) override;
 
   virtual void invalidate() override;
   virtual void flush() override;
