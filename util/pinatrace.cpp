@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <numaif.h>
 #include "pin.H"
 
 FILE *trace;
@@ -48,13 +49,25 @@ int getCPU() {
   return CPU;
 }
 
+
+/* See man page for move_pages, tldr, move with pages = NULL will not move,
+ * but put the current numa node into status[0]
+ */
+int getNumaNode(void* addr) {
+    int status[1];
+    if (move_pages(0, 1, &addr, NULL, status, 0) < 0) {
+        fprintf(stderr, "move pages failed\n");
+        exit(1);
+    }
+    return status[0];
+
+}
+
 // Print a memory read record
 VOID RecordMemRead(VOID *ip, VOID *addr) {
   PIN_GetLock(&lock, 0);
   int cpu_id = getCPU();
-  // TODO map memory lines to numa nodes
-  int numa_node = 0;
-  fprintf(trace, "%d W %p %d\n", cpu_id, addr, numa_node);
+  fprintf(trace, "%d W %p %d\n", cpu_id, addr, getNumaNode(addr));
   PIN_ReleaseLock(&lock);
 }
 
@@ -62,9 +75,7 @@ VOID RecordMemRead(VOID *ip, VOID *addr) {
 VOID RecordMemWrite(VOID *ip, VOID *addr) {
   PIN_GetLock(&lock, 0);
   int cpu_id = getCPU();
-  // TODO map memory lines to numa nodes
-  int numa_node = 0;
-  fprintf(trace, "%d W %p %d\n", cpu_id, addr, numa_node);
+  fprintf(trace, "%d W %p %d\n", cpu_id, addr, getNumaNode(addr));
   PIN_ReleaseLock(&lock);
 }
 
@@ -94,6 +105,7 @@ VOID Instruction(INS ins, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
+  fprintf(trace, "#eof\n");
   fclose(trace);
 }
 
