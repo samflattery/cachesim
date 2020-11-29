@@ -42,7 +42,7 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
                 << "\n";
     }
     if (node_id >= numa_nodes or proc >= procs) {
-        std::cout << "Trace requires that p >= " << procs << " and n >= " << numa_nodes << "\n";
+        std::cout << "Invalid value of p or n for given trace\n";
         exit(1);
     }
 
