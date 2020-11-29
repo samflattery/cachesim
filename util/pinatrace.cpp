@@ -13,8 +13,6 @@
  *  This file contains an ISA-portable PIN tool for tracing memory accesses.
  */
 
-#include <cpuid.h>
-#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,29 +40,6 @@ typedef std::pair<unsigned long, int> TULongIntPair;
 
 int pagesize; // kernel pagesize;
 TULongIntMap addressToNumaMap;
-
-/* __cpuid_count gets information of the cpu and puts values using cpuid x86 instruction
- * ** should technically first check eflags that cpuid instruction exists
- * More info here: https://en.wikipedia.org/wiki/CPUID
- *
- * Each cpu has a core and APIC (advanced programmable interrupt controller)
- * CPUInfo[1] (EBX) bits 31-24 is the APIC ID, which we extract and return.
- * Since there is a one-to-one correspondance of APIC and cpu, we will use these numbers
- * More info here: https://wiki.osdev.org/APIC
- */
-int getCPU() {
-  int CPU;
-  static uint32_t CPUInfo[4];
-  __cpuid_count(1, 0, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
-  if ((CPUInfo[3] & (1 << 9)) == 0) {
-    CPU = -1; /* no APIC on chip */
-  } else {
-    /* CPUInfo[1] is EBX, bits 24-31 are APIC ID */
-    CPU = (unsigned)CPUInfo[1] >> 24;
-  }
-  if (CPU < 0) CPU = 0;
-  return CPU;
-}
 
 int getNumaNode(VOID *addr) {
     // round address to nearest page
@@ -133,16 +108,14 @@ int getNumaNode(VOID *addr) {
 // Print a memory read record
 VOID RecordMemRead(VOID *ip, VOID *addr) {
   PIN_GetLock(&lock, 0);
-  int cpu_id = getCPU();
-  fprintf(trace, "%d W %p %d\n", cpu_id, addr, getNumaNode(addr));
+  fprintf(trace, "%d W %p %d\n", PIN_ThreadId(), addr, getNumaNode(addr));
   PIN_ReleaseLock(&lock);
 }
 
 // Print a memory write record
 VOID RecordMemWrite(VOID *ip, VOID *addr) {
   PIN_GetLock(&lock, 0);
-  int cpu_id = getCPU();
-  fprintf(trace, "%d W %p %d\n", cpu_id, addr, getNumaNode(addr));
+  fprintf(trace, "%d W %p %d\n", PIN_ThreadId(), addr, getNumaNode(addr));
   PIN_ReleaseLock(&lock);
 }
 
