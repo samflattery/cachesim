@@ -17,14 +17,31 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <string.h>
 #include <unistd.h>
-#include <numaif.h>
+
+#include <fstream>
+#include <map>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
 #include "pin.H"
+
+
+
 
 FILE *trace;
 PIN_LOCK lock;
 
+typedef std::map<unsigned long, int> TULongIntMap;
+typedef std::pair<unsigned long, int> TULongIntPair;
+
+
+int pagesize; // kernel pagesize;
+TULongIntMap addressToNumaMap;
 
 /* __cpuid_count gets information of the cpu and puts values using cpuid x86 instruction
  * ** should technically first check eflags that cpuid instruction exists
@@ -49,18 +66,68 @@ int getCPU() {
   return CPU;
 }
 
+int getNumaNode(VOID *addr) {
+    // round address to nearest page
+    unsigned long address = (unsigned long)addr / pagesize * pagesize;
+    std::map<unsigned long,int>::iterator it;
+    if ((it = addressToNumaMap.find(address)) != addressToNumaMap.end()) {
+        // if we already have this address, then report its numa node
+        return it->second;
+    } else {
+        // open the map and numa_maps files and assign a numa node to the addess
+        // in a weighted random manner
+        std::ifstream maps, numa_maps;
+        char buf[1024];
+        sprintf(buf, "/proc/%d/maps", getpid());
+        maps.open(buf, std::ios::in);
 
-/* See man page for move_pages, tldr, move with pages = NULL will not move,
- * but put the current numa node into status[0]
- */
-int getNumaNode(void* addr) {
-    int status[1];
-    if (move_pages(0, 1, &addr, NULL, status, 0) < 0) {
-        fprintf(stderr, "move pages failed\n");
-        exit(1);
+        sprintf(buf, "/proc/%d/numa_maps", getpid());
+        numa_maps.open(buf, std::ios::in);
+        if (!maps || !numa_maps) {
+            exit(1);
+        }
+        int currentNode = 0;
+        while(maps.getline(buf, 1024)) {
+            unsigned long minAddr, maxAddr;
+            sscanf(buf, "%lx-%lx ", &minAddr, &maxAddr);
+            if (minAddr <= address && address <= maxAddr) {
+                while(numa_maps.getline(buf, 1024)) {
+                    const char delim[2] = " ";
+                    char *tok = strtok(buf, delim);
+                    if ((unsigned long)strtol(tok, NULL, 16) == minAddr) {
+                        int totalCount = 0;
+                        std::vector<TULongIntPair> v;
+                        while(tok != NULL) {
+                            int node; long count;
+                            if (sscanf(tok, "N%d=%ld", &node, &count) == 2) {
+                                v.push_back(TULongIntPair(count, node));
+                                totalCount += count;
+                            }
+                            tok = strtok(NULL, delim);
+                        }
+                        int r = totalCount == 0 ? 0 : rand() % totalCount;
+                        for (unsigned int i = 0; i < v.size(); i++) {
+                            r -= v[i].first;
+                            if (r < 0) { currentNode = v[i].second; break; }
+                        };
+                        addressToNumaMap.insert(TULongIntPair(address, currentNode));
+                        maps.close();
+                        numa_maps.close();
+                        return currentNode;
+                    }
+                }
+            }
+        }
+
+        // Occasionally, there's a concurrency issue with the proc file in which we do not
+        // find the address.  In limited experiments, this occurred rarely, (< .1% of operations)
+        // In this case we assign it to node 0.  We must add it to the lookup map since the
+        // same address reached later must have the same node.
+        addressToNumaMap.insert(TULongIntPair(address, currentNode));
+        maps.close();
+        numa_maps.close();
+        return currentNode;
     }
-    return status[0];
-
 }
 
 // Print a memory read record
@@ -105,7 +172,6 @@ VOID Instruction(INS ins, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
-  fprintf(trace, "#eof\n");
   fclose(trace);
 }
 
@@ -125,6 +191,9 @@ INT32 Usage() {
 
 int main(int argc, char *argv[]) {
   if (PIN_Init(argc, argv)) return Usage();
+
+  pagesize = getpagesize();
+  srand(time(NULL));
 
   trace = fopen("pinatrace.out", "w");
 
