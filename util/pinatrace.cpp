@@ -52,7 +52,9 @@ int getCPU() {
 VOID RecordMemRead(VOID *ip, VOID *addr) {
   PIN_GetLock(&lock, 0);
   int cpu_id = getCPU();
-  fprintf(trace, "%d W %p\n", cpu_id, addr);
+  // TODO map memory lines to numa nodes
+  int numa_node = 0;
+  fprintf(trace, "%d W %p %d\n", cpu_id, addr, numa_node);
   PIN_ReleaseLock(&lock);
 }
 
@@ -60,7 +62,9 @@ VOID RecordMemRead(VOID *ip, VOID *addr) {
 VOID RecordMemWrite(VOID *ip, VOID *addr) {
   PIN_GetLock(&lock, 0);
   int cpu_id = getCPU();
-  fprintf(trace, "%d W %p\n", cpu_id, addr);
+  // TODO map memory lines to numa nodes
+  int numa_node = 0;
+  fprintf(trace, "%d W %p %d\n", cpu_id, addr, numa_node);
   PIN_ReleaseLock(&lock);
 }
 

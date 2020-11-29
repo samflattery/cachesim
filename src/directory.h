@@ -13,7 +13,7 @@ enum class DirectoryState {
 
 // models a line in the directory as a state and a list of presence bits
 struct DirectoryLine {
-  DirectoryLine(int procs) { presence_.resize(procs, false); }
+  DirectoryLine(int procs) : state_(DirectoryState::U) { presence_.resize(procs, false); }
   DirectoryState state_;
   std::vector<bool> presence_;
 };
