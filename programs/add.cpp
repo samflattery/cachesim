@@ -13,13 +13,15 @@ int main() {
   int n = 100;
   int *x = (int *) calloc(sizeof(int),  n);
   std::vector<std::thread> threads;
-  int thread_id = 0;
-  for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
-    /* std::cout << thread_id << std::endl; */
-    threads.push_back(std::move(std::thread(incr, x, n, thread_id)));
-    thread_id++;
+
+  int num_threads = std::thread::hardware_concurrency() - 1;
+
+  for (int i = 0; i < num_threads; ++i) {
+    threads.push_back(std::move(std::thread(incr, x, n, i)));
   }
-  for (int i = 0; i < std::thread::hardware_concurrency(); ++i) {
+  incr(x, n, num_threads);
+
+  for (int i = 0; i < num_threads; ++i) {
     threads[i].join();
   }
 }
