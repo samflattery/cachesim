@@ -1,6 +1,7 @@
 #include "numa_node.h"
 
-NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, Protocol protocol, bool verbose)
+NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, Protocol protocol,
+           bool verbose)
     : node_id_(node_id),
       num_nodes_(num_nodes),
       num_procs_(num_procs),

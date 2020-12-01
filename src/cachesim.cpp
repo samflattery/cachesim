@@ -21,8 +21,8 @@ void setupInterconnects(std::vector<NUMA *> &nodes) {
   }
 }
 
-void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes, Protocol protocol,
-                   bool verbose) {
+void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
+                   Protocol protocol, bool verbose) {
   std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
     NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, protocol, verbose);
@@ -44,8 +44,8 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
     }
 
     if (node_id >= numa_nodes or proc >= procs) {
-        std::cout << "Invalid value of p or n for given trace\n";
-        exit(1);
+      std::cout << "Invalid value of p or n for given trace\n";
+      exit(1);
     }
 
     // get the NUMA node that the requesting proc belongs to
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
   }
 
   Protocol prot;
-  if (protocol == "" || protocol == "MESI" ) {
+  if (protocol == "" || protocol == "MESI") {
     // default to MESI
     prot = Protocol::MESI;
   } else if (protocol == "MSI") {
