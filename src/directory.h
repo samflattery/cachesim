@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include "interconnect.h"
+#include "protocols.h"
 
 enum class DirectoryState {
   U = 0,  // uncached - no caches have valid copy
@@ -25,7 +26,7 @@ class Interconnect;
 // address with the lower b bits masked off, since they represent block offset bits
 class Directory {
  public:
-  Directory(int procs, int b) : procs_(procs), block_offset_bits_(b), interconnect_(nullptr) {}
+  Directory(int procs, int b, Protocol protocol) : procs_(procs), block_offset_bits_(b), protocol_(protocol), interconnect_(nullptr) {}
   ~Directory() {
     for (auto &[addr, line] : directory_) delete line;
   }
@@ -51,6 +52,7 @@ class Directory {
 
   int procs_;
   int block_offset_bits_;
+  Protocol protocol_;
   std::unordered_map<long, DirectoryLine *> directory_;
 
   // the interconnect through which messages are sent to the caches

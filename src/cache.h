@@ -8,6 +8,8 @@
 
 #include "cache_block.h"
 #include "mesi_block.h"
+#include "msi_block.h"
+#include "protocols.h"
 
 #define ADDR_LEN 64L
 
@@ -20,10 +22,17 @@ struct Address {
 
 // defines a cache set as a set of blocks
 struct Set {
-  Set(int associativity) {
+  Set(int associativity, Protocol protocol) {
     blocks_.reserve(associativity);
     for (int i = 0; i < associativity; i++) {
-      blocks_.push_back(new MESIBlock);
+      switch (protocol) {
+        case Protocol::MESI:
+          blocks_.push_back(new MESIBlock);
+          break;
+        case Protocol::MSI:
+          blocks_.push_back(new MSIBlock);
+          break;
+      }
     }
   }
   ~Set() {
@@ -41,7 +50,7 @@ class Cache {
  public:
   // construct a new cache with given id with 2^s sets, 2^b bytes per block and
   // associativity E
-  Cache(int id, int numa_node, int s, int E, int b);
+  Cache(int id, int numa_node, int s, int E, int b, Protocol protocol);
 
   // perform a read / write to a given address
   void cacheWrite(Address address);
@@ -107,6 +116,9 @@ class Cache {
   int E_;
   int b_;
   int B_;
+
+  // the cache protocol being used
+  Protocol protocol_;
 
   // the interconnect through which messages to the directory are sent
   // can be nullptr when running with a single cache

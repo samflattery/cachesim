@@ -48,7 +48,7 @@ class CacheBlock {
   virtual void flush() = 0;
 
   // response from interconnect after read miss
-  virtual void receiveReadData(bool exclusive) = 0;
+  virtual void receiveReadData([[maybe_unused]] bool exclusive) = 0;
 
   // response from interconnect after write miss
   virtual void receiveWriteData() = 0;

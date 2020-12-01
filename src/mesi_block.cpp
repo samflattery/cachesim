@@ -31,9 +31,8 @@ InterconnectAction MESIBlock::updateState(bool is_write) {
       return InterconnectAction::NOACTION;
     case MESI::S:
       if (is_write) {
-        // TODO(samflattery) consider this a miss as the upgrade is required?
         miss_count_++;
-        state_ = MESI::S;
+        state_ = MESI::M;
         return InterconnectAction::BUSRDX;
       } else {
         // nothing to be done in read case, stays in shared state

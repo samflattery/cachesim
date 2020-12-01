@@ -1,6 +1,6 @@
 #include "cache.h"
 
-Cache::Cache(int id, int numa_node, int s, int E, int b)
+Cache::Cache(int id, int numa_node, int s, int E, int b, Protocol protocol)
     : cache_id_(id),
       numa_node_(numa_node),
       s_(s),
@@ -8,11 +8,12 @@ Cache::Cache(int id, int numa_node, int s, int E, int b)
       E_(E),
       b_(b),
       B_(1 << b),
+      protocol_(protocol),
       interconnect_(nullptr) {
   // construct sets in a loop to make sure that they are not copied pointers
   sets_.reserve(S_);
   for (int i = 0; i < S_; i++) {
-    sets_.push_back(std::make_shared<Set>(E));
+    sets_.push_back(std::make_shared<Set>(E, protocol_));
   }
 }
 

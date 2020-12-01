@@ -53,15 +53,12 @@ void Directory::receiveEviction(int cache_id, long address) {
       assert(false);
       break;
     case DirectoryState::S:
-      // count owners, maybe upgrade to EM
-      for (size_t i = 0; i < line->presence_.size(); ++i) {
-        num_sharers++;
-      }
-      // should be at least one left
-      assert(num_sharers >= 1);
+      // count the number of sharers and demote if there are none left
+      // don't promote to EM if there is only one sharer left since the last remaining cache
+      // doesn't know it has exclusive access
+      num_sharers = std::count(line->presence_.begin(), line->presence_.end(), true);
+      if (num_sharers == 0) line->state_ = DirectoryState::U;
 
-      // promote to EM if there is only one sharer left
-      if (num_sharers == 1) line->state_ = DirectoryState::EM;
       break;
     case DirectoryState::EM:
       // there are now no caches sharing this line
@@ -79,7 +76,14 @@ void Directory::receiveBusRd(int cache_id, long address) {
       // send the cache the data from memory, now in exclusive state
       interconnect_->sendReadMiss(cache_id, addr, /* exclusive */ true);
       line->presence_[cache_id] = true;
-      line->state_ = DirectoryState::EM;
+
+      // don't promote read requests to EM in MSI since caches don't know they have exclusive read
+      // access
+      if (protocol_ == Protocol::MESI) {
+        line->state_ = DirectoryState::EM;
+      } else if (protocol_ == Protocol::MSI) {
+        line->state_ = DirectoryState::S;
+      }
       break;
     case DirectoryState::S:
       // send the cache the data from memory, no transition needed, add proc to
