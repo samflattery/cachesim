@@ -1,7 +1,7 @@
-#include <thread>
-#include <vector>
 #include <stdlib.h>
 #include <iostream>
+#include <thread>
+#include <vector>
 
 void incr(int *arr, int n, int thread_id) {
   for (int i = thread_id; i < n; i += std::thread::hardware_concurrency()) {
@@ -11,7 +11,7 @@ void incr(int *arr, int n, int thread_id) {
 
 int main() {
   int n = 100;
-  int *x = (int *) calloc(sizeof(int),  n);
+  int *x = (int *)calloc(sizeof(int), n);
   std::vector<std::thread> threads;
 
   int num_threads = std::thread::hardware_concurrency() - 1;
