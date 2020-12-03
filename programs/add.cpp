@@ -17,7 +17,7 @@ int main() {
   int num_threads = std::thread::hardware_concurrency() - 1;
 
   for (int i = 0; i < num_threads; ++i) {
-    threads.push_back(std::move(std::thread(incr, x, n, i)));
+    threads.push_back(std::thread(incr, x, n, i));
   }
   incr(x, n, num_threads);
 
