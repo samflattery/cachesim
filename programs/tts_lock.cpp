@@ -1,3 +1,6 @@
+/** @file tts_lock.cpp
+ *  @brief Implements and test-and-test-and-set lock
+ */
 #include <stdlib.h>
 #include <unistd.h>
 #include <atomic>
@@ -12,19 +15,24 @@ int counter = 0;
 struct spinlock {
   atomic<bool> l = {false};
   void lock() {
-    while (l.exchange(true))
-      ;
+    while (true) {
+      if (!l.exchange(true)) return;
+      while (l.load())
+        ;
+    }
   }
   void unlock() { l.store(false); }
 } LOCK;
 
 void incr(int amount) {
-  for (int i = 0; i < amount; i++) {
-    LOCK.lock();
-    counter++;
-    sleep(1);  // purposefully hold the lock for longer
-    LOCK.unlock();
-  }
+    for (int i = 0; i < amount; i++) {
+        LOCK.lock();
+        counter++;
+        // purposefully hold the lock for longer to
+        // generate more contention
+        sleep(1);
+        LOCK.unlock();
+    }
 }
 
 int main(int argc, char *argv[]) {
