@@ -229,7 +229,7 @@ void Cache::printStats() const {
   std::cout << "\n*** Cache " << cache_id_ << " ***\n"
             << "Misses:\t\t" << getMissCount() << "\n"
             << "Hits:\t\t" << getHitCount() << "\n"
-            << "Flushes:\t\t" << getHitCount() << "\n"
+            << "Flushes:\t\t" << getFlushCount() << "\n"
             << "Evictions:\t\t" << getEvictionCount() << "\n"
             << "Dirty Evictions:\t" << getDirtyEvictionCount() << "\n"
             << "Invalidations:\t" << getInvalidationCount() << "\n\n";
