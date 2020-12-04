@@ -67,7 +67,7 @@ class Cache {
   // *** communication with interconnect ***
   // invalidate a line
   void receiveInvalidate(long addr);
-  // send the data in a line back to the directory
+  // send the data in a line back to the directory, may need to flush the line if dirty
   void receiveFetch(long addr);
   // receive directory's response to a read miss
   void receiveReadMiss(long addr, bool exclusive);
@@ -103,6 +103,7 @@ class Cache {
 
   size_t getHitCount() const;
   size_t getMissCount() const;
+  size_t getFlushCount() const;
   size_t getEvictionCount() const;
   size_t getInvalidationCount() const;
   size_t getDirtyEvictionCount() const;

@@ -43,4 +43,5 @@ void NUMA::printStats() const {
     cache.printStats();
   }
   interconnect_->printStats();
+  std::cout << std::endl;
 }

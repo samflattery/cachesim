@@ -56,7 +56,9 @@ InterconnectAction MESIBlock::updateState(bool is_write) {
 
 InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag, int new_node) {
   if (state_ != MESI::I) {
+    // evicting a dirty block causes a flush to memory
     if (dirty_) {
+      flushes_++;
       dirty_evictions_++;
     }
     evictions_++;
@@ -98,6 +100,9 @@ void MESIBlock::invalidate() {
 
 void MESIBlock::flush() {
   assert(state_ == MESI::E || state_ == MESI::M);
+  if (state_ == MESI::M) {
+    flushes_++;
+  }
   state_ = MESI::S;
 }
 

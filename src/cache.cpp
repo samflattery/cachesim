@@ -178,6 +178,16 @@ size_t Cache::getMissCount() const {
   return count;
 }
 
+size_t Cache::getFlushCount() const {
+  size_t count = 0;
+  for (auto set : sets_) {
+    for (auto block : set->blocks_) {
+      count += block->getFlushCount();
+    }
+  }
+  return count;
+}
+
 size_t Cache::getEvictionCount() const {
   size_t count = 0;
   for (auto set : sets_) {
@@ -216,9 +226,10 @@ void Cache::printState() const {
 
 void Cache::printStats() const {
   std::cout << "\n*** Cache " << cache_id_ << " ***\n"
-            << "miss_count:\t\t" << getMissCount() << "\n"
-            << "hit_count:\t\t" << getHitCount() << "\n"
-            << "eviction_count:\t\t" << getEvictionCount() << "\n"
-            << "invalidation_count:\t" << getInvalidationCount() << "\n"
-            << "dirty_blocks_evicted:\t" << getDirtyEvictionCount() << "\n\n";
+            << "Misses:\t\t" << getMissCount() << "\n"
+            << "Hits:\t\t" << getHitCount() << "\n"
+            << "Flushes:\t\t" << getHitCount() << "\n"
+            << "Evictions:\t\t" << getEvictionCount() << "\n"
+            << "Dirty Evictions:\t" << getDirtyEvictionCount() << "\n"
+            << "Invalidations:\t" << getInvalidationCount() << "\n\n";
 }

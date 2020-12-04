@@ -49,6 +49,7 @@ InterconnectAction MSIBlock::updateState(bool is_write) {
 InterconnectAction MSIBlock::evictAndReplace(bool is_write, long tag, int new_node) {
   if (state_ != MSI::I) {
     if (dirty_) {
+      flushes_++;
       dirty_evictions_++;
     }
     evictions_++;
@@ -87,6 +88,7 @@ void MSIBlock::invalidate() {
 
 void MSIBlock::flush() {
   assert(state_ == MSI::M);
+  flushes_++;
   state_ = MSI::S;
 }
 

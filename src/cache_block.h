@@ -9,6 +9,7 @@ class CacheBlock {
       : dirty_(false),
         tag_(0L),
         last_used_(0L),
+        flushes_(0L),
         hit_count_(0L),
         evictions_(0L),
         miss_count_(0L),
@@ -27,6 +28,7 @@ class CacheBlock {
   // Get stats on the block
   size_t getHitCount() { return hit_count_; }
   size_t getMissCount() { return miss_count_; }
+  size_t getFlushCount() { return flushes_; }
   size_t getEvictionCount() { return evictions_; }
   size_t getInvalidationCount() { return invalidations_; }
   size_t getDirtyEvictionCount() { return dirty_evictions_; }
@@ -64,9 +66,13 @@ class CacheBlock {
   // to send the eviction message to
   int numa_node_;
 
+  // number of times the block has been flushed to memory
+  size_t flushes_;
+
   size_t hit_count_;
   size_t evictions_;
   size_t miss_count_;
   size_t invalidations_;
   size_t dirty_evictions_;
+
 };
