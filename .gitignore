@@ -1,5 +1,5 @@
 build/
-programs/*.o
+programs/*.out
 tags:
 cachesim
 a.out

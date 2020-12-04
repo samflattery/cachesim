@@ -25,19 +25,19 @@ struct spinlock {
 } LOCK;
 
 void incr(int amount) {
-    for (int i = 0; i < amount; i++) {
-        LOCK.lock();
-        counter++;
-        // purposefully hold the lock for longer to
-        // generate more contention
-        sleep(1);
-        LOCK.unlock();
-    }
+  for (int i = 0; i < amount; i++) {
+    LOCK.lock();
+    counter++;
+    // purposefully hold the lock for longer to
+    // generate more contention
+    sleep(1);
+    LOCK.unlock();
+  }
 }
 
 int main(int argc, char *argv[]) {
   if (argc < 2 or argc > 2) {
-    cout << "usage: ./spinlock <num_threads>\n";
+    cout << "usage: ./tts_lock <num_threads>\n";
     exit(0);
   }
   int num_threads = atoi(argv[1]);
