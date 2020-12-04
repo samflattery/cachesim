@@ -9,7 +9,7 @@ OBJ = $(addprefix $(OBJDIR)/, numa_node.o mesi_block.o cache.o interconnect.o di
 
 # Default build rule
 .PHONY: all
-all: cachesim programs
+all: cachesim
 
 .PHONY: programs
 programs:
