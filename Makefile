@@ -11,6 +11,10 @@ OBJ = $(addprefix $(OBJDIR)/, numa_node.o mesi_block.o cache.o interconnect.o di
 .PHONY: all
 all: cachesim
 
+.PHONY: programs
+programs:
+	(cd programs && make)
+
 cachesim: $(OBJ)
 	$(CXX) $(CXXFLAGS) -o cachesim $(OBJ)
 
@@ -20,3 +24,4 @@ $(OBJDIR)/%.o: %.cpp $(DEPS)
 .PHONY: clean
 clean:
 	rm -f $(OBJDIR)/*.o cachesim a.out
+	(cd programs && make clean)
