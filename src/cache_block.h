@@ -1,6 +1,11 @@
 #pragma once
 
-enum class InterconnectAction { NOACTION, BUSRD, BUSRDX, FLUSH, BROADCAST };
+enum class InterconnectAction {
+  NOACTION,
+  BUSRD,
+  BUSRDX,
+  BROADCAST /* broadcast an update to a cache in the O state in MOESI */
+};
 
 // Abstract class for a cache block
 class CacheBlock {

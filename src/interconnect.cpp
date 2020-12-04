@@ -86,13 +86,12 @@ void Interconnect::sendBroadcast(int src, Address address) {
     interconnects_[address.numa_node]->sendBroadcast(src, address);
   } else {
     if (verbose_)
-      std::cout << "cache " << src << " sending Broadcast of " << std::hex << address.addr << std::dec
-                << "\n";
+      std::cout << "cache " << src << " sending Broadcast of " << std::hex << address.addr
+                << std::dec << "\n";
     directory_->receiveBroadcast(src, address.addr);
     cache_events_++;
   }
 }
-
 
 void Interconnect::sendEviction(int src, Address address) {
   if (address.numa_node != numa_node_) {
@@ -145,7 +144,7 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
     if (verbose_)
       std::cout << "sending ReadMiss on " << std::hex << addr << std::dec << " to cache " << dest
                 << "\n";
-    (*caches_)[dest % (num_procs_ / num_numa_nodes_)].receiveReadMiss(addr, exclusive);
+    (*caches_)[dest % (num_procs_ / num_numa_nodes_)].receiveReadData(addr, exclusive);
     directory_events_++;
   }
 }
@@ -163,7 +162,7 @@ void Interconnect::sendWriteMiss(int dest, long addr) {
     if (verbose_)
       std::cout << "sending WriteMiss on " << std::hex << addr << std::dec << " to cache " << dest
                 << "\n";
-    (*caches_)[dest % (num_procs_ / num_numa_nodes_)].receiveWriteMiss(addr);
+    (*caches_)[dest % (num_procs_ / num_numa_nodes_)].receiveWriteData(addr);
     directory_events_++;
   }
 }

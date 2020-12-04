@@ -7,8 +7,8 @@
 #include "interconnect.h"
 
 #include "cache_block.h"
-#include "moesi_block.h"
 #include "mesi_block.h"
+#include "moesi_block.h"
 #include "msi_block.h"
 #include "protocols.h"
 
@@ -74,9 +74,9 @@ class Cache {
   // send the data in a line back to the directory, may need to flush the line if dirty
   void receiveFetch(Address address);
   // receive directory's response to a read miss
-  void receiveReadMiss(long addr, bool exclusive);
+  void receiveReadData(long addr, bool exclusive);
   // receive directory's response to a write miss
-  void receiveWriteMiss(long addr);
+  void receiveWriteData(long addr);
 
  private:
   // perform a read / write to given address

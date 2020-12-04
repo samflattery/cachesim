@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
     prot = Protocol::MSI;
   } else if (protocol == "MOESI") {
     prot = Protocol::MOESI;
-  }else {
+  } else {
     std::cerr << "Invalid protocol, must be <MSI|MESI>\n";
     return 1;
   }

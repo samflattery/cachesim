@@ -39,7 +39,7 @@ void Directory::invalidateSharers(DirectoryLine *line, int new_owner, unsigned l
     if (line->presence_[i]) {
       // reset the owner of a line if it is evicted
       if (protocol_ == Protocol::MOESI) {
-        if ((size_t) line->owner_ == i) {
+        if ((size_t)line->owner_ == i) {
           line->owner_ = -1;
         }
       }
@@ -64,7 +64,7 @@ void Directory::receiveBroadcast(int cache_id, unsigned long address) {
 
   for (size_t i = 0; i < line->presence_.size(); ++i) {
     // cache_id is the owner, don't send him a read miss
-    if (line->presence_[i] && i != (size_t) cache_id) {
+    if (line->presence_[i] && i != (size_t)cache_id) {
       interconnect_->sendReadMiss(i, addr, /* exclusive */ false);
     }
   }

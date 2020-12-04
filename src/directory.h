@@ -14,10 +14,12 @@ enum class DirectoryState {
 
 // models a line in the directory as a state and a list of presence bits
 struct DirectoryLine {
-  DirectoryLine(int procs) : state_(DirectoryState::U), owner_(-1) { presence_.resize(procs, false); }
+  DirectoryLine(int procs) : state_(DirectoryState::U), owner_(-1) {
+    presence_.resize(procs, false);
+  }
   DirectoryState state_;
   std::vector<bool> presence_;
-  int owner_; // in MOESI, the cache with the block in O state
+  int owner_;  // in MOESI, the cache with the block in O state
 };
 
 class Interconnect;

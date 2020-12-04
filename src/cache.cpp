@@ -128,9 +128,6 @@ void Cache::performInterconnectAction(InterconnectAction action, Address address
     case InterconnectAction::BUSRDX:
       interconnect_->sendBusRdX(cache_id_, address);
       break;
-    case InterconnectAction::FLUSH:
-      // TODO(samflattery) add flush case
-      break;
     case InterconnectAction::BROADCAST:
       interconnect_->sendBroadcast(cache_id_, address);
       break;
@@ -152,12 +149,12 @@ void Cache::receiveFetch(Address address) {
   interconnect_->sendData(cache_id_, address);
 }
 
-void Cache::receiveReadMiss(long addr, bool exclusive) {
+void Cache::receiveReadData(long addr, bool exclusive) {
   auto block = findInCache(addr);
   block->receiveReadData(exclusive);
 }
 
-void Cache::receiveWriteMiss(long addr) {
+void Cache::receiveWriteData(long addr) {
   auto block = findInCache(addr);
   block->receiveWriteData();
 }
