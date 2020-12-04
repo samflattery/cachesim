@@ -112,12 +112,13 @@ void MOESIBlock::invalidate() {
   state_ = MOESI::I;
 }
 
-void MOESIBlock::flush() {
-  assert(state_ == MOESI::E || state_ == MOESI::M);
+void MOESIBlock::fetch() {
+  assert(state_ == MOESI::O || state_ == MOESI::E || state_ == MOESI::M);
   if (state_ == MOESI::M) {
     // we now own the data and service other cache's requests, so we don't have to flush
     state_ = MOESI::O;
-  } else {
+  } else if (state_ == MOESI::E){
+    // if it's just exclusive, just downgrade to shared for free
     state_ = MOESI::S;
   }
 }

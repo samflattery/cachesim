@@ -98,7 +98,7 @@ void MESIBlock::invalidate() {
   state_ = MESI::I;
 }
 
-void MESIBlock::flush() {
+void MESIBlock::fetch() {
   assert(state_ == MESI::E || state_ == MESI::M);
   if (state_ == MESI::M) {
     flushes_++;

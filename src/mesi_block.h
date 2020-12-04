@@ -20,7 +20,7 @@ class MESIBlock : public CacheBlock {
   virtual InterconnectAction evictAndReplace(bool is_write, long tag, int new_node) override;
 
   virtual void invalidate() override;
-  virtual void flush() override;
+  virtual void fetch() override;
   virtual void receiveReadData(bool exclusive) override;
   virtual void receiveWriteData() override;
 

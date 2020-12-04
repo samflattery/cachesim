@@ -86,7 +86,7 @@ void MSIBlock::invalidate() {
   state_ = MSI::I;
 }
 
-void MSIBlock::flush() {
+void MSIBlock::fetch() {
   assert(state_ == MSI::M);
   flushes_++;
   state_ = MSI::S;

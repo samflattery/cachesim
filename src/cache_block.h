@@ -51,8 +51,8 @@ class CacheBlock {
   // interconnect invalidated my line
   virtual void invalidate() = 0;
 
-  // flush to main memory
-  virtual void flush() = 0;
+  // fetch a line, flushing to main memory if the line is dirty
+  virtual void fetch() = 0;
 
   // response from interconnect after read miss
   virtual void receiveReadData([[maybe_unused]] bool exclusive) = 0;
