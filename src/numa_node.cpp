@@ -6,7 +6,7 @@ NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, Proto
       num_nodes_(num_nodes),
       num_procs_(num_procs),
       procs_per_node_(num_procs_ / num_nodes_),
-      directory_(num_procs, b, protocol) {
+      directory_(num_procs, b, protocol, node_id_) {
   for (int i = 0; i < procs_per_node_; ++i) {
     int cache_id = procs_per_node_ * node_id + i;
     caches_.push_back(Cache(cache_id, node_id, s, E, b, protocol));

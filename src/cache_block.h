@@ -74,5 +74,4 @@ class CacheBlock {
   size_t miss_count_;
   size_t invalidations_;
   size_t dirty_evictions_;
-
 };

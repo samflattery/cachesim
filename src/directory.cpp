@@ -1,6 +1,6 @@
 #include "directory.h"
 
-DirectoryLine *Directory::getLine(long addr) {
+DirectoryLine *Directory::getLine(unsigned long addr) {
   auto it = directory_.find(addr);
   if (it == directory_.end()) {
     DirectoryLine *line = new DirectoryLine(procs_);
@@ -10,7 +10,7 @@ DirectoryLine *Directory::getLine(long addr) {
   return it->second;
 }
 
-long Directory::getAddr(long addr) {
+long Directory::getAddr(unsigned long addr) {
   long block_mask = 0L;
   for (int i = ADDR_LEN - 1; i >= block_offset_bits_; i--) {
     block_mask |= (1L << i);
@@ -19,6 +19,8 @@ long Directory::getAddr(long addr) {
 }
 
 void Directory::connectToInterconnect(Interconnect *interconnect) { interconnect_ = interconnect; }
+
+void Directory::receiveData(int cache_id, unsigned long addr) {}
 
 int Directory::findOwner(DirectoryLine *line) {
   assert(line->state_ == DirectoryState::EM);
@@ -30,7 +32,7 @@ int Directory::findOwner(DirectoryLine *line) {
   return -1;
 }
 
-void Directory::invalidateSharers(DirectoryLine *line, int new_owner, long addr) {
+void Directory::invalidateSharers(DirectoryLine *line, int new_owner, unsigned long addr) {
   assert(line->state_ == DirectoryState::S);
   for (size_t i = 0; i < line->presence_.size(); ++i) {
     if (i == (size_t)new_owner) continue;
@@ -38,8 +40,8 @@ void Directory::invalidateSharers(DirectoryLine *line, int new_owner, long addr)
   }
 }
 
-void Directory::receiveEviction(int cache_id, long address) {
-  long addr = getAddr(address);
+void Directory::receiveEviction(int cache_id, unsigned long address) {
+  unsigned long addr = getAddr(address);
   DirectoryLine *line = getLine(addr);
 
   // unset the presence bit for that cache
@@ -67,8 +69,8 @@ void Directory::receiveEviction(int cache_id, long address) {
   }
 }
 
-void Directory::receiveBusRd(int cache_id, long address) {
-  long addr = getAddr(address);
+void Directory::receiveBusRd(int cache_id, unsigned long address) {
+  unsigned long addr = getAddr(address);
   DirectoryLine *line = getLine(addr);
 
   switch (line->state_) {
@@ -95,7 +97,7 @@ void Directory::receiveBusRd(int cache_id, long address) {
       // downgrade the owner and get him to flush, now in shared state
       {
         int owner_id = findOwner(line);
-        interconnect_->sendFetch(owner_id, addr);
+        interconnect_->sendFetch(owner_id, {addr, numa_node_});
         line->presence_[cache_id] = true;
         interconnect_->sendReadMiss(cache_id, addr, /* exclusive */ false);
       }
@@ -108,8 +110,8 @@ void Directory::receiveBusRd(int cache_id, long address) {
   }
 }
 
-void Directory::receiveBusRdX(int cache_id, long address) {
-  long addr = getAddr(address);
+void Directory::receiveBusRdX(int cache_id, unsigned long address) {
+  unsigned long addr = getAddr(address);
   DirectoryLine *line = getLine(addr);
 
   switch (line->state_) {
@@ -130,7 +132,7 @@ void Directory::receiveBusRdX(int cache_id, long address) {
     case DirectoryState::EM:
       // invalidate the old owner and send data to new owner
       int owner_id = findOwner(line);
-      interconnect_->sendFetch(owner_id, addr);
+      interconnect_->sendFetch(owner_id, {addr, numa_node_});
       interconnect_->sendInvalidate(owner_id, addr);
       line->presence_[owner_id] = false;
 

@@ -68,7 +68,7 @@ class Cache {
   // invalidate a line
   void receiveInvalidate(long addr);
   // send the data in a line back to the directory, may need to flush the line if dirty
-  void receiveFetch(long addr);
+  void receiveFetch(Address address);
   // receive directory's response to a read miss
   void receiveReadMiss(long addr, bool exclusive);
   // receive directory's response to a write miss

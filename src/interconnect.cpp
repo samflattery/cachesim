@@ -59,6 +59,23 @@ void Interconnect::sendBusRdX(int src, Address address) {
   }
 }
 
+void Interconnect::sendData(int src, Address address) {
+  if (address.numa_node != numa_node_) {
+    global_events_++;
+    cache_events_++;
+    if (verbose_)
+      std::cout << "sending over the main interconnect from " << numa_node_ << " to "
+                << address.numa_node << "\n";
+    interconnects_[address.numa_node]->sendData(src, address);
+  } else {
+    if (verbose_)
+      std::cout << "cache " << src << " sending Data of " << std::hex << address.addr << std::dec
+                << "\n";
+    directory_->receiveData(src, address.addr);
+    cache_events_++;
+  }
+}
+
 void Interconnect::sendEviction(int src, Address address) {
   if (address.numa_node != numa_node_) {
     global_events_++;
@@ -78,7 +95,7 @@ void Interconnect::sendEviction(int src, Address address) {
 
 int Interconnect::getNode(int dest) { return dest / (num_procs_ / num_numa_nodes_); }
 
-void Interconnect::sendFetch(int dest, long addr) {
+void Interconnect::sendFetch(int dest, Address address) {
   int dest_node;
   // the message might need to be sent to a cache on a different NUMA node
   if ((dest_node = getNode(dest)) != numa_node_) {
@@ -87,12 +104,12 @@ void Interconnect::sendFetch(int dest, long addr) {
     if (verbose_)
       std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
                 << "\n";
-    interconnects_[dest_node]->sendFetch(dest, addr);
+    interconnects_[dest_node]->sendFetch(dest, address);
   } else {
     if (verbose_)
-      std::cout << "sending Fetch of " << std::hex << addr << std::dec << " to cache " << dest
+      std::cout << "sending Fetch of " << std::hex << address.addr << std::dec << " to cache " << dest
                 << "\n";
-    (*caches_)[dest % (num_procs_ / num_numa_nodes_)].receiveFetch(addr);
+    (*caches_)[dest % (num_procs_ / num_numa_nodes_)].receiveFetch(address);
     directory_events_++;
   }
 }

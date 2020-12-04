@@ -25,12 +25,13 @@ class Interconnect {
   // cache -> directory messages
   void sendBusRd(int src, Address address);
   void sendBusRdX(int src, Address address);
+  void sendData(int src, Address address);
   void sendEviction(int src, Address address);
 
   // directory -> cache messages
   void sendReadMiss(int dest, long addr, bool exclusive);
   void sendWriteMiss(int dest, long addr);
-  void sendFetch(int dest, long addr);
+  void sendFetch(int dest, Address address);
   void sendInvalidate(int dest, long addr);
 
   void printStats();
