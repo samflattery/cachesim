@@ -1,2 +1,2 @@
 #pragma once
-enum class Protocol { MSI, MESI };
+enum class Protocol { MSI, MESI, MOESI };

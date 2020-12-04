@@ -14,9 +14,10 @@ enum class DirectoryState {
 
 // models a line in the directory as a state and a list of presence bits
 struct DirectoryLine {
-  DirectoryLine(int procs) : state_(DirectoryState::U) { presence_.resize(procs, false); }
+  DirectoryLine(int procs) : state_(DirectoryState::U), owner_(-1) { presence_.resize(procs, false); }
   DirectoryState state_;
   std::vector<bool> presence_;
+  int owner_; // in MOESI, the cache with the block in O state
 };
 
 class Interconnect;
@@ -41,7 +42,10 @@ class Directory {
   void receiveBusRd(int cache_id, unsigned long address);
   void receiveBusRdX(int cache_id, unsigned long address);
   void receiveEviction(int cache_id, unsigned long address);
-  void receiveData([[maybe_unused]] int cache_id, [[maybe_unused]] unsigned long addr);
+  // receive data back from a cache after a fetch call
+  void receiveData(int cache_id, unsigned long address);
+  // receive a message to broadcast new data from an updated O block to all other sharers
+  void receiveBroadcast(int cache_id, unsigned long address);
 
  private:
   // translate a full address into a block address by zeroing lowest block_offset_bits_ bits
@@ -51,7 +55,7 @@ class Directory {
   DirectoryLine *getLine(unsigned long addr);
 
   // find the owner of an EM line
-  int findOwner(DirectoryLine *line);
+  int findOwnerEM(DirectoryLine *line);
 
   // send invalidate messages to all sharers of a line except new_owner
   void invalidateSharers(DirectoryLine *line, int new_owner, unsigned long addr);

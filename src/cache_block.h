@@ -1,6 +1,6 @@
 #pragma once
 
-enum class InterconnectAction { NOACTION, BUSRD, BUSRDX, FLUSH };
+enum class InterconnectAction { NOACTION, BUSRD, BUSRDX, FLUSH, BROADCAST };
 
 // Abstract class for a cache block
 class CacheBlock {

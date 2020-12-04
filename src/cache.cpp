@@ -131,6 +131,9 @@ void Cache::performInterconnectAction(InterconnectAction action, Address address
     case InterconnectAction::FLUSH:
       // TODO(samflattery) add flush case
       break;
+    case InterconnectAction::BROADCAST:
+      interconnect_->sendBroadcast(cache_id_, address);
+      break;
     case InterconnectAction::NOACTION:
       break;
     default:

@@ -4,13 +4,13 @@
 
 #include "cache_block.h"
 
-enum class MSI { M, S, I };
+enum class MOESI { M, O, E, S, I };
 
-// defines a cache block / cache line metadata and its MSI state
-class MSIBlock : public CacheBlock {
+// defines a cache block / cache line metadata and its MOESI state
+class MOESIBlock : public CacheBlock {
  public:
-  MSIBlock();
-  virtual ~MSIBlock() {}
+  MOESIBlock();
+  virtual ~MOESIBlock() {}
 
   virtual bool isValid() override;
 
@@ -21,11 +21,11 @@ class MSIBlock : public CacheBlock {
 
   virtual void invalidate() override;
   virtual void flush() override;
-  virtual void receiveReadData([[maybe_unused]] bool exclusive) override;
+  virtual void receiveReadData(bool exclusive) override;
   virtual void receiveWriteData() override;
 
  private:
   InterconnectAction updateState(bool is_write) override;
 
-  MSI state_;
+  MOESI state_;
 };

@@ -7,6 +7,7 @@
 #include "interconnect.h"
 
 #include "cache_block.h"
+#include "moesi_block.h"
 #include "mesi_block.h"
 #include "msi_block.h"
 #include "protocols.h"
@@ -31,6 +32,9 @@ struct Set {
           break;
         case Protocol::MSI:
           blocks_.push_back(new MSIBlock);
+          break;
+        case Protocol::MOESI:
+          blocks_.push_back(new MOESIBlock);
           break;
       }
     }

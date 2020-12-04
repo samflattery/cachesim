@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
   usage += "-t <tracefile>: name of memory trace to replay\n";
   usage += "-p <processors>: number of processors\n";
   usage += "-n <numa nodes>: number of NUMA nodes\n";
-  usage += "-m <MSI | MESI>: the cache protocol to use\n";
+  usage += "-m <MSI | MESI | MOESI>: the cache protocol to use\n";
 
   char opt;
   std::string filepath;
@@ -134,7 +134,9 @@ int main(int argc, char **argv) {
     prot = Protocol::MESI;
   } else if (protocol == "MSI") {
     prot = Protocol::MSI;
-  } else {
+  } else if (protocol == "MOESI") {
+    prot = Protocol::MOESI;
+  }else {
     std::cerr << "Invalid protocol, must be <MSI|MESI>\n";
     return 1;
   }

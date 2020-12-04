@@ -4,7 +4,6 @@
 
 #include "cache_block.h"
 
-// explicitly set I to default initialize an enum to invalid state
 enum class MESI { M, E, S, I };
 
 // defines a cache block / cache line metadata and its MESI state
