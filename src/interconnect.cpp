@@ -131,7 +131,7 @@ void Interconnect::sendFetch(int dest, Address address) {
   }
 }
 
-void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
+void Interconnect::sendReadData(int dest, long addr, bool exclusive) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
@@ -139,7 +139,7 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
     if (verbose_)
       std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
                 << "\n";
-    interconnects_[dest_node]->sendReadMiss(dest, addr, exclusive);
+    interconnects_[dest_node]->sendReadData(dest, addr, exclusive);
   } else {
     if (verbose_)
       std::cout << "sending ReadMiss on " << std::hex << addr << std::dec << " to cache " << dest
@@ -149,7 +149,7 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
   }
 }
 
-void Interconnect::sendWriteMiss(int dest, long addr) {
+void Interconnect::sendWriteData(int dest, long addr) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
@@ -157,7 +157,7 @@ void Interconnect::sendWriteMiss(int dest, long addr) {
     if (verbose_)
       std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
                 << "\n";
-    interconnects_[dest_node]->sendWriteMiss(dest, addr);
+    interconnects_[dest_node]->sendWriteData(dest, addr);
   } else {
     if (verbose_)
       std::cout << "sending WriteMiss on " << std::hex << addr << std::dec << " to cache " << dest

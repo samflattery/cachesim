@@ -30,14 +30,17 @@ class Interconnect {
   void sendBroadcast(int src, Address address);
 
   // directory -> cache messages
-  void sendReadMiss(int dest, long addr, bool exclusive);
-  void sendWriteMiss(int dest, long addr);
+  void sendReadData(int dest, long addr, bool exclusive);
+  void sendWriteData(int dest, long addr);
   // the address contains the addr of the memory as well as the NUMA node of the directory that
   // requested the data
   void sendFetch(int dest, Address address);
   void sendInvalidate(int dest, long addr);
 
   void printStats();
+
+  size_t getLocalEvents() { return directory_events_ + cache_events_; }
+  size_t getGlobalEvents() { return global_events_; }
 
   int getNumaNode();
 

@@ -21,8 +21,39 @@ void setupInterconnects(std::vector<NUMA *> &nodes) {
   }
 }
 
+void printAggregateStats(std::vector<NUMA *> &nodes) {
+  Stats stats;
+  for (const auto &node : nodes) {
+    stats += node->getStats();
+  }
+
+  std::cout << "\t** Aggregate Stats ***" << std::endl;
+  std::cout << "\t----------------------" << std::endl;
+  std::cout << "Caches" << std::endl;
+  std::cout << "------" << std::endl;
+  std::cout << "Total Hits: \t" << stats.hits_ << std::endl;
+  ;
+  std::cout << "Total Misses: \t" << stats.misses_ << std::endl;
+  std::cout << "Total Flushes: \t" << stats.flushes_ << std::endl;
+  std::cout << "Total Evictions: \t" << stats.evictions_ << std::endl;
+  std::cout << "Total Dirty Evictions: \t" << stats.dirty_evictions_ << std::endl;
+  std::cout << "Total Invalidations: \t" << stats.invalidations_ << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "Interconnects" << std::endl;
+  std::cout << "-------------" << std::endl;
+  std::cout << "Total Local Interconnect Events: \t" << stats.local_interconnect_ << std::endl;
+  std::cout << "Total Global Interconnect Events: \t" << stats.global_interconnect_ << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "Memory" << std::endl;
+  std::cout << "------" << std::endl;
+  std::cout << "Total Memory Reads: \t" << stats.memory_reads_ << std::endl;
+  std::cout << std::endl << std::endl;
+}
+
 void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
-                   Protocol protocol, bool verbose) {
+                   Protocol protocol, bool aggregate, bool verbose) {
   std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
     NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, protocol, verbose);
@@ -57,6 +88,9 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
     }
   }
 
+  if (aggregate) {
+    printAggregateStats(nodes);
+  }
   for (auto node : nodes) {
     node->printStats();
     delete node;
@@ -67,6 +101,7 @@ int main(int argc, char **argv) {
   std::string usage;
   usage += "-h: help\n";
   usage += "-v: verbose output that displays trace info\n";
+  usage += "-a: display aggregate stats as well as per cache/NUMA node\n";
   usage += "-s <s>: number of set index bits (S = 2^s)\n";
   usage += "-E <E>: associativity (number of lines per set)\n";
   usage += "-b <b>: number of block bits (B = 2^b)\n";
@@ -85,9 +120,10 @@ int main(int argc, char **argv) {
   int procs;
   int numa_nodes = 1;
   bool verbose = false;
+  bool aggregate = false;
 
   // parse command line options
-  while ((opt = getopt(argc, argv, "hvs:E:b:t:p:n:m:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvas:E:b:t:p:n:m:")) != -1) {
     switch (opt) {
       case 'h':
         std::cout << usage;
@@ -115,6 +151,9 @@ int main(int argc, char **argv) {
         break;
       case 'm':
         protocol = std::string(optarg);
+        break;
+      case 'a':
+        aggregate = true;
         break;
       default:
         std::cerr << usage;
@@ -148,7 +187,7 @@ int main(int argc, char **argv) {
   }
 
   // run the input trace on the cache
-  runSimulation(s, E, b, trace, procs, numa_nodes, prot, verbose);
+  runSimulation(s, E, b, trace, procs, numa_nodes, prot, aggregate, verbose);
 
   trace.close();
 

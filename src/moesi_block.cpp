@@ -117,7 +117,7 @@ void MOESIBlock::fetch() {
   if (state_ == MOESI::M) {
     // we now own the data and service other cache's requests, so we don't have to flush
     state_ = MOESI::O;
-  } else if (state_ == MOESI::E){
+  } else if (state_ == MOESI::E) {
     // if it's just exclusive, just downgrade to shared for free
     state_ = MOESI::S;
   }
