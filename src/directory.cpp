@@ -38,10 +38,8 @@ void Directory::invalidateSharers(DirectoryLine *line, int new_owner, unsigned l
     }
     if (line->presence_[i]) {
       // reset the owner of a line if it is evicted
-      if (protocol_ == Protocol::MOESI) {
-        if ((size_t)line->owner_ == i) {
-          line->owner_ = -1;
-        }
+      if (protocol_ == Protocol::MOESI && (size_t)line->owner_ == i) {
+        line->owner_ = -1;
       }
       interconnect_->sendInvalidate(i, addr);
     }
@@ -65,7 +63,7 @@ void Directory::receiveBroadcast(int cache_id, unsigned long address) {
   for (size_t i = 0; i < line->presence_.size(); ++i) {
     // cache_id is the owner, don't send him a read miss
     if (line->presence_[i] && i != (size_t)cache_id) {
-      interconnect_->sendReadMiss(i, addr, /* exclusive */ false);
+      interconnect_->sendReadData(i, addr, /* exclusive */ false);
     }
   }
 }
@@ -111,7 +109,8 @@ void Directory::receiveBusRd(int cache_id, unsigned long address) {
   switch (line->state_) {
     case DirectoryState::U:
       // send the cache the data from memory, now in exclusive state
-      interconnect_->sendReadMiss(cache_id, addr, /* exclusive */ true);
+      memory_reads_++;
+      interconnect_->sendReadData(cache_id, addr, /* exclusive */ true);
       line->presence_[cache_id] = true;
 
       // don't promote read requests to EM in MSI since caches don't know they have exclusive read
@@ -127,8 +126,12 @@ void Directory::receiveBusRd(int cache_id, unsigned long address) {
       // shared set
       if (protocol_ == Protocol::MOESI && line->owner_ != -1) {
         interconnect_->sendFetch(line->owner_, {addr, numa_node_});
+      } else {
+        // TODO(samflattery/bwei98) this might not be a full memory access, could get data from a
+        // sharing cache
+        memory_reads_++;
       }
-      interconnect_->sendReadMiss(cache_id, addr, /* exclusive */ false);
+      interconnect_->sendReadData(cache_id, addr, /* exclusive */ false);
       line->presence_[cache_id] = true;
       break;
     case DirectoryState::EM:
@@ -137,7 +140,7 @@ void Directory::receiveBusRd(int cache_id, unsigned long address) {
       interconnect_->sendFetch(owner_id, {addr, numa_node_});
 
       line->presence_[cache_id] = true;
-      interconnect_->sendReadMiss(cache_id, addr, /* exclusive */ false);
+      interconnect_->sendReadData(cache_id, addr, /* exclusive */ false);
 
       line->state_ = DirectoryState::S;
       break;
@@ -151,7 +154,8 @@ void Directory::receiveBusRdX(int cache_id, unsigned long address) {
   switch (line->state_) {
     case DirectoryState::U:
       // send the cache the data from memory, now in exclusive state
-      interconnect_->sendWriteMiss(cache_id, addr);
+      memory_reads_++;
+      interconnect_->sendWriteData(cache_id, addr);
       line->presence_[cache_id] = true;
       line->state_ = DirectoryState::EM;
       break;
@@ -159,7 +163,8 @@ void Directory::receiveBusRdX(int cache_id, unsigned long address) {
       // invalidate all sharers, except the cache sending the BusRdX, send the
       // owner the memory block
       invalidateSharers(line, cache_id, addr);
-      interconnect_->sendWriteMiss(cache_id, addr);
+      memory_reads_++;
+      interconnect_->sendWriteData(cache_id, addr);
       line->presence_[cache_id] = true;
       line->state_ = DirectoryState::EM;
       break;
@@ -181,7 +186,7 @@ void Directory::receiveBusRdX(int cache_id, unsigned long address) {
       line->presence_[cache_id] = true;
 
       // respond to new owner
-      interconnect_->sendWriteMiss(cache_id, addr);
+      interconnect_->sendWriteData(cache_id, addr);
       line->state_ = DirectoryState::EM;
       break;
   }

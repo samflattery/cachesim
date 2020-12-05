@@ -5,6 +5,7 @@
 #include "cache.h"
 #include "directory.h"
 #include "interconnect.h"
+#include "latencies.h"
 #include "numa_node.h"
 #include "protocols.h"
 
@@ -21,8 +22,52 @@ void setupInterconnects(std::vector<NUMA *> &nodes) {
   }
 }
 
+void printAggregateStats(std::vector<NUMA *> &nodes) {
+  Stats stats;
+  for (const auto &node : nodes) {
+    stats += node->getStats();
+  }
+
+  std::cout << "\t** Aggregate Stats ***" << std::endl
+            << "\t----------------------" << std::endl
+            << "Caches" << std::endl
+            << "------" << std::endl
+            << "Total Hits:\t\t" << stats.hits_ << std::endl
+            << "Total Misses:\t\t" << stats.misses_ << std::endl
+            << "Total Flushes:\t\t" << stats.flushes_ << std::endl
+            << "Total Evictions: \t" << stats.evictions_ << std::endl
+            << "Total Dirty Evictions: \t" << stats.dirty_evictions_ << std::endl
+            << "Total Invalidations: \t" << stats.invalidations_ << std::endl
+            << std::endl;
+
+  std::cout << "Interconnects" << std::endl
+            << "-------------" << std::endl
+            << "Total Local Interconnect Events: \t" << stats.local_interconnect_ << std::endl
+            << "Total Global Interconnect Events: \t" << stats.global_interconnect_ << std::endl
+            << std::endl;
+
+  std::cout << "Memory" << std::endl
+            << "------" << std::endl
+            << "Total Memory Reads: \t" << stats.memory_reads_ << std::endl
+            << std::endl;
+
+  std::cout << "Latencies" << std::endl
+            << "---------" << std::endl
+            << "Cache Access Latency:\t\t" << outputLatency(stats.hits_ * CACHE_LATENCY) << "\n"
+            << "Memory Read Latency:\t\t" << outputLatency(stats.memory_reads_ * MEMORY_LATENCY) << "\n"
+            << "Memory Write Latency:\t\t" << outputLatency(stats.memory_writes_ * MEMORY_LATENCY) << "\n"
+            << "Memory Access Latency:\t\t"
+            << outputLatency((stats.memory_reads_ + stats.memory_writes_) * MEMORY_LATENCY) << "\n"
+            << "Local Interconnect Latency:\t"
+            << outputLatency(stats.local_interconnect_ * LOCAL_INTERCONNECT_LATENCY) << "\n"
+            << "Global Interconnect Latency:\t"
+            << outputLatency(stats.global_interconnect_ * GLOBAL_INTERCONNECT_LATENCY) << "\n"
+            << std::endl
+            << std::endl;
+}
+
 void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
-                   Protocol protocol, bool verbose) {
+                   Protocol protocol, bool individual, bool aggregate, bool verbose) {
   std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
     NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, protocol, verbose);
@@ -57,8 +102,13 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
     }
   }
 
+  if (aggregate) {
+    printAggregateStats(nodes);
+  }
   for (auto node : nodes) {
-    node->printStats();
+    if (individual) {
+      node->printStats();
+    }
     delete node;
   }
 }
@@ -67,6 +117,8 @@ int main(int argc, char **argv) {
   std::string usage;
   usage += "-h: help\n";
   usage += "-v: verbose output that displays trace info\n";
+  usage += "-a: display aggregate stats\n";
+  usage += "-i: display individual stats (i.e.) per cache, per NUMA node\n";
   usage += "-s <s>: number of set index bits (S = 2^s)\n";
   usage += "-E <E>: associativity (number of lines per set)\n";
   usage += "-b <b>: number of block bits (B = 2^b)\n";
@@ -85,15 +137,23 @@ int main(int argc, char **argv) {
   int procs;
   int numa_nodes = 1;
   bool verbose = false;
+  bool aggregate = false;
+  bool individual = false;
 
   // parse command line options
-  while ((opt = getopt(argc, argv, "hvs:E:b:t:p:n:m:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvais:E:b:t:p:n:m:")) != -1) {
     switch (opt) {
       case 'h':
         std::cout << usage;
         return 0;
       case 'v':
         verbose = true;
+        break;
+      case 'a':
+        aggregate = true;
+        break;
+      case 'i':
+        individual = true;
         break;
       case 's':
         s = atoi(optarg);
@@ -148,7 +208,7 @@ int main(int argc, char **argv) {
   }
 
   // run the input trace on the cache
-  runSimulation(s, E, b, trace, procs, numa_nodes, prot, verbose);
+  runSimulation(s, E, b, trace, procs, numa_nodes, prot, individual, aggregate, verbose);
 
   trace.close();
 

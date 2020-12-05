@@ -34,6 +34,7 @@ class Directory {
         block_offset_bits_(b),
         protocol_(protocol),
         numa_node_(numa_node),
+        memory_reads_(0),
         interconnect_(nullptr) {}
   ~Directory() {
     for (auto &[addr, line] : directory_) delete line;
@@ -48,6 +49,8 @@ class Directory {
   void receiveData(int cache_id, unsigned long address);
   // receive a message to broadcast new data from an updated O block to all other sharers
   void receiveBroadcast(int cache_id, unsigned long address);
+
+  size_t getMemoryReads() const { return memory_reads_; }
 
  private:
   // translate a full address into a block address by zeroing lowest block_offset_bits_ bits
@@ -66,6 +69,7 @@ class Directory {
   int block_offset_bits_;
   Protocol protocol_;
   int numa_node_;
+  size_t memory_reads_;
   std::unordered_map<long, DirectoryLine *> directory_;
 
   // the interconnect through which messages are sent to the caches

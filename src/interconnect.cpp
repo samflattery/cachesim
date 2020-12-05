@@ -131,7 +131,7 @@ void Interconnect::sendFetch(int dest, Address address) {
   }
 }
 
-void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
+void Interconnect::sendReadData(int dest, long addr, bool exclusive) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
@@ -139,7 +139,7 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
     if (verbose_)
       std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
                 << "\n";
-    interconnects_[dest_node]->sendReadMiss(dest, addr, exclusive);
+    interconnects_[dest_node]->sendReadData(dest, addr, exclusive);
   } else {
     if (verbose_)
       std::cout << "sending ReadMiss on " << std::hex << addr << std::dec << " to cache " << dest
@@ -149,7 +149,7 @@ void Interconnect::sendReadMiss(int dest, long addr, bool exclusive) {
   }
 }
 
-void Interconnect::sendWriteMiss(int dest, long addr) {
+void Interconnect::sendWriteData(int dest, long addr) {
   int dest_node;
   if ((dest_node = getNode(dest)) != numa_node_) {
     global_events_++;
@@ -157,7 +157,7 @@ void Interconnect::sendWriteMiss(int dest, long addr) {
     if (verbose_)
       std::cout << "sending over the main interconnect from " << numa_node_ << " to " << dest_node
                 << "\n";
-    interconnects_[dest_node]->sendWriteMiss(dest, addr);
+    interconnects_[dest_node]->sendWriteData(dest, addr);
   } else {
     if (verbose_)
       std::cout << "sending WriteMiss on " << std::hex << addr << std::dec << " to cache " << dest
@@ -187,7 +187,11 @@ void Interconnect::sendInvalidate(int dest, long addr) {
 
 void Interconnect::printStats() {
   std::cout << "*** Interconnect Events ***\n"
-            << "Cache Events:\t" << cache_events_ << "\n"
-            << "Directory Events:\t" << directory_events_ << "\n"
-            << "Global Interconnect Events:\t" << global_events_ << "\n";
+            << "Cache Events:\t\t\t" << cache_events_ << "\n"
+            << "Directory Events:\t\t" << directory_events_ << "\n"
+            << "Global Interconnect Events:\t" << global_events_ << "\n"
+            << "Local Interconnect Latency:\t"
+            << outputLatency((cache_events_ + directory_events_) * LOCAL_INTERCONNECT_LATENCY) << "\n"
+            << "Global Interconnect Latency:\t" << outputLatency(global_events_ * GLOBAL_INTERCONNECT_LATENCY)
+            << "\n";
 }

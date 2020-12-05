@@ -7,6 +7,7 @@
 #include "interconnect.h"
 
 #include "cache_block.h"
+#include "latencies.h"
 #include "mesi_block.h"
 #include "moesi_block.h"
 #include "msi_block.h"
@@ -45,6 +46,11 @@ struct Set {
   std::vector<CacheBlock*> blocks_;
 };
 
+struct CacheStats {
+  size_t hits_ = 0, misses_ = 0, flushes_ = 0, invalidations_ = 0, evictions_ = 0,
+         dirty_evictions_ = 0, memory_writes_ = 0;
+};
+
 // forward declarations because there is a circular dependency between the
 // headers
 class Interconnect;
@@ -78,6 +84,8 @@ class Cache {
   // receive directory's response to a write miss
   void receiveWriteData(long addr);
 
+  CacheStats getStats() const;
+
  private:
   // perform a read / write to given address
   void performOperation(Address address, bool is_write);
@@ -104,13 +112,6 @@ class Cache {
   // addr is the address of the new block, which is used to add the set bits back to tag
   // numa_node is the node to send the eviction to
   void sendEviction(unsigned long tag, unsigned long addr, int numa_node);
-
-  size_t getHitCount() const;
-  size_t getMissCount() const;
-  size_t getFlushCount() const;
-  size_t getEvictionCount() const;
-  size_t getInvalidationCount() const;
-  size_t getDirtyEvictionCount() const;
 
   int cache_id_;
   [[maybe_unused]] int numa_node_;
