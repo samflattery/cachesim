@@ -67,7 +67,7 @@ void printAggregateStats(std::vector<NUMA *> &nodes) {
 }
 
 void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
-                   Protocol protocol, bool aggregate, bool verbose) {
+                   Protocol protocol, bool individual, bool aggregate, bool verbose) {
   std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
     NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, protocol, verbose);
@@ -106,7 +106,9 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
     printAggregateStats(nodes);
   }
   for (auto node : nodes) {
-    node->printStats();
+    if (individual) {
+      node->printStats();
+    }
     delete node;
   }
 }
@@ -115,7 +117,8 @@ int main(int argc, char **argv) {
   std::string usage;
   usage += "-h: help\n";
   usage += "-v: verbose output that displays trace info\n";
-  usage += "-a: display aggregate stats as well as per cache/NUMA node\n";
+  usage += "-a: display aggregate stats\n";
+  usage += "-i: display individual stats (i.e.) per cache, per NUMA node\n";
   usage += "-s <s>: number of set index bits (S = 2^s)\n";
   usage += "-E <E>: associativity (number of lines per set)\n";
   usage += "-b <b>: number of block bits (B = 2^b)\n";
@@ -135,15 +138,22 @@ int main(int argc, char **argv) {
   int numa_nodes = 1;
   bool verbose = false;
   bool aggregate = false;
+  bool individual = false;
 
   // parse command line options
-  while ((opt = getopt(argc, argv, "hvas:E:b:t:p:n:m:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvais:E:b:t:p:n:m:")) != -1) {
     switch (opt) {
       case 'h':
         std::cout << usage;
         return 0;
       case 'v':
         verbose = true;
+        break;
+      case 'a':
+        aggregate = true;
+        break;
+      case 'i':
+        individual = true;
         break;
       case 's':
         s = atoi(optarg);
@@ -165,9 +175,6 @@ int main(int argc, char **argv) {
         break;
       case 'm':
         protocol = std::string(optarg);
-        break;
-      case 'a':
-        aggregate = true;
         break;
       default:
         std::cerr << usage;
@@ -201,7 +208,7 @@ int main(int argc, char **argv) {
   }
 
   // run the input trace on the cache
-  runSimulation(s, E, b, trace, procs, numa_nodes, prot, aggregate, verbose);
+  runSimulation(s, E, b, trace, procs, numa_nodes, prot, individual, aggregate, verbose);
 
   trace.close();
 
