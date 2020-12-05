@@ -159,64 +159,20 @@ void Cache::receiveWriteData(long addr) {
   block->receiveWriteData();
 }
 
-size_t Cache::getHitCount() const {
-  size_t count = 0;
+CacheStats Cache::getStats() const {
+  CacheStats stats;
   for (auto set : sets_) {
     for (auto block : set->blocks_) {
-      count += block->getHitCount();
+      stats.hits_ += block->getHitCount();
+      stats.misses_ += block->getMissCount();
+      stats.flushes_ += block->getFlushCount();
+      stats.invalidations_ += block->getInvalidationCount();
+      stats.evictions_ += block->getEvictionCount();
+      stats.dirty_evictions_ += block->getDirtyEvictionCount();
     }
   }
-  return count;
-}
-
-size_t Cache::getMissCount() const {
-  size_t count = 0;
-  for (auto set : sets_) {
-    for (auto block : set->blocks_) {
-      count += block->getMissCount();
-    }
-  }
-  return count;
-}
-
-size_t Cache::getFlushCount() const {
-  size_t count = 0;
-  for (auto set : sets_) {
-    for (auto block : set->blocks_) {
-      count += block->getFlushCount();
-    }
-  }
-  return count;
-}
-
-size_t Cache::getEvictionCount() const {
-  size_t count = 0;
-  for (auto set : sets_) {
-    for (auto block : set->blocks_) {
-      count += block->getEvictionCount();
-    }
-  }
-  return count;
-}
-
-size_t Cache::getInvalidationCount() const {
-  size_t count = 0;
-  for (auto set : sets_) {
-    for (auto block : set->blocks_) {
-      count += block->getInvalidationCount();
-    }
-  }
-  return count;
-}
-
-size_t Cache::getDirtyEvictionCount() const {
-  size_t count = 0;
-  for (auto set : sets_) {
-    for (auto block : set->blocks_) {
-      count += block->getDirtyEvictionCount();
-    }
-  }
-  return count;
+  stats.memory_writes_ = stats.dirty_evictions_ + stats.flushes_;
+  return stats;
 }
 
 void Cache::printState() const {
@@ -226,11 +182,14 @@ void Cache::printState() const {
 }
 
 void Cache::printStats() const {
+  auto stats = getStats();
   std::cout << "\n*** Cache " << cache_id_ << " ***\n"
-            << "Misses:\t\t" << getMissCount() << "\n"
-            << "Hits:\t\t" << getHitCount() << "\n"
-            << "Flushes:\t\t" << getFlushCount() << "\n"
-            << "Evictions:\t\t" << getEvictionCount() << "\n"
-            << "Dirty Evictions:\t" << getDirtyEvictionCount() << "\n"
-            << "Invalidations:\t" << getInvalidationCount() << "\n\n";
+            << "Misses:\t\t\t" << stats.misses_ << "\n"
+            << "Hits:\t\t\t" << stats.hits_ << "\n"
+            << "Flushes:\t\t" << stats.flushes_ << "\n"
+            << "Evictions:\t\t" << stats.evictions_ << "\n"
+            << "Dirty Evictions:\t" << stats.dirty_evictions_ << "\n"
+            << "Invalidations:\t\t" << stats.invalidations_ << "\n"
+            << "Cache Access Latency:\t" << stats.hits_ * CACHE_LATENCY << "ns\n"
+            << "Memory Write Latency:\t" << stats.memory_writes_ * MEMORY_LATENCY << "ns\n\n";
 }

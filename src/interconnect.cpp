@@ -187,7 +187,11 @@ void Interconnect::sendInvalidate(int dest, long addr) {
 
 void Interconnect::printStats() {
   std::cout << "*** Interconnect Events ***\n"
-            << "Cache Events:\t" << cache_events_ << "\n"
-            << "Directory Events:\t" << directory_events_ << "\n"
-            << "Global Interconnect Events:\t" << global_events_ << "\n";
+            << "Cache Events:\t\t\t" << cache_events_ << "\n"
+            << "Directory Events:\t\t" << directory_events_ << "\n"
+            << "Global Interconnect Events:\t" << global_events_ << "\n"
+            << "Local Interconnect Latency:\t"
+            << (cache_events_ + directory_events_) * LOCAL_INTERCONNECT_LATENCY << "ns\n"
+            << "Global Interconnect Latency:\t" << global_events_ * GLOBAL_INTERCONNECT_LATENCY
+            << "ns\n";
 }

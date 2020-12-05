@@ -39,12 +39,7 @@ void NUMA::cacheWrite(int proc, unsigned long addr, int numa_node) {
 Stats NUMA::getStats() const {
   Stats stats;
   for (const auto &cache : caches_) {
-    stats.hits_ += cache.getHitCount();
-    stats.misses_ += cache.getMissCount();
-    stats.flushes_ += cache.getFlushCount();
-    stats.evictions_ += cache.getEvictionCount();
-    stats.invalidations_ += cache.getInvalidationCount();
-    stats.dirty_evictions_ += cache.getDirtyEvictionCount();
+    stats += cache.getStats();
   }
   stats.memory_reads_ = directory_.getMemoryReads();
   stats.local_interconnect_ = interconnect_->getLocalEvents();
@@ -60,7 +55,8 @@ void NUMA::printStats() const {
   }
   interconnect_->printStats();
   std::cout << std::endl;
-  std::cout << "*** Memory Reads ***" << std::endl;
-  std::cout << "Memory Reads: " << directory_.getMemoryReads() << std::endl;
+  std::cout << "*** Memory Reads ***\n";
+  std::cout << "Memory Reads:\t\t" << directory_.getMemoryReads() << "\n";
+  std::cout << "Memory Read Latency:\t" << directory_.getMemoryReads() * MEMORY_LATENCY << "ns\n";
   std::cout << std::endl;
 }

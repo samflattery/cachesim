@@ -28,29 +28,42 @@ void printAggregateStats(std::vector<NUMA *> &nodes) {
     stats += node->getStats();
   }
 
-  std::cout << "\t** Aggregate Stats ***" << std::endl;
-  std::cout << "\t----------------------" << std::endl;
-  std::cout << "Caches" << std::endl;
-  std::cout << "------" << std::endl;
-  std::cout << "Total Hits: \t" << stats.hits_ << std::endl;
-  ;
-  std::cout << "Total Misses: \t" << stats.misses_ << std::endl;
-  std::cout << "Total Flushes: \t" << stats.flushes_ << std::endl;
-  std::cout << "Total Evictions: \t" << stats.evictions_ << std::endl;
-  std::cout << "Total Dirty Evictions: \t" << stats.dirty_evictions_ << std::endl;
-  std::cout << "Total Invalidations: \t" << stats.invalidations_ << std::endl;
-  std::cout << std::endl;
+  std::cout << "\t** Aggregate Stats ***" << std::endl
+            << "\t----------------------" << std::endl
+            << "Caches" << std::endl
+            << "------" << std::endl
+            << "Total Hits:\t\t" << stats.hits_ << std::endl
+            << "Total Misses:\t\t" << stats.misses_ << std::endl
+            << "Total Flushes:\t\t" << stats.flushes_ << std::endl
+            << "Total Evictions: \t" << stats.evictions_ << std::endl
+            << "Total Dirty Evictions: \t" << stats.dirty_evictions_ << std::endl
+            << "Total Invalidations: \t" << stats.invalidations_ << std::endl
+            << std::endl;
 
-  std::cout << "Interconnects" << std::endl;
-  std::cout << "-------------" << std::endl;
-  std::cout << "Total Local Interconnect Events: \t" << stats.local_interconnect_ << std::endl;
-  std::cout << "Total Global Interconnect Events: \t" << stats.global_interconnect_ << std::endl;
-  std::cout << std::endl;
+  std::cout << "Interconnects" << std::endl
+            << "-------------" << std::endl
+            << "Total Local Interconnect Events: \t" << stats.local_interconnect_ << std::endl
+            << "Total Global Interconnect Events: \t" << stats.global_interconnect_ << std::endl
+            << std::endl;
 
-  std::cout << "Memory" << std::endl;
-  std::cout << "------" << std::endl;
-  std::cout << "Total Memory Reads: \t" << stats.memory_reads_ << std::endl;
-  std::cout << std::endl << std::endl;
+  std::cout << "Memory" << std::endl
+            << "------" << std::endl
+            << "Total Memory Reads: \t" << stats.memory_reads_ << std::endl
+            << std::endl;
+
+  std::cout << "Latencies" << std::endl
+            << "---------" << std::endl
+            << "Cache Access Latency:\t\t" << stats.hits_ * CACHE_LATENCY << "ns\n"
+            << "Memory Read Latency:\t\t" << stats.memory_reads_ * MEMORY_LATENCY << "ns\n"
+            << "Memory Write Latency:\t\t" << stats.memory_writes_ * MEMORY_LATENCY << "ns\n"
+            << "Memory Access Latency:\t\t"
+            << (stats.memory_reads_ + stats.memory_writes_) * MEMORY_LATENCY << "ns\n"
+            << "Local Interconnect Latency:\t"
+            << stats.local_interconnect_ * LOCAL_INTERCONNECT_LATENCY << "ns\n"
+            << "Global Interconnect Latency:\t"
+            << stats.global_interconnect_ * GLOBAL_INTERCONNECT_LATENCY << "ns\n"
+            << std::endl
+            << std::endl;
 }
 
 void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,

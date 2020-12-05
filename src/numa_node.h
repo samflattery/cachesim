@@ -6,7 +6,8 @@
 
 struct Stats {
   size_t hits_ = 0, misses_ = 0, flushes_ = 0, evictions_ = 0, dirty_evictions_ = 0,
-         invalidations_ = 0, local_interconnect_ = 0, global_interconnect_ = 0, memory_reads_ = 0;
+         invalidations_ = 0, local_interconnect_ = 0, global_interconnect_ = 0, memory_reads_ = 0,
+         memory_writes_ = 0;
   Stats &operator+=(const Stats &other) {
     hits_ += other.hits_;
     misses_ += other.misses_;
@@ -16,6 +17,17 @@ struct Stats {
     local_interconnect_ += other.local_interconnect_;
     global_interconnect_ += other.global_interconnect_;
     memory_reads_ += other.memory_reads_;
+    memory_writes_ += other.memory_writes_;
+    return *this;
+  }
+
+  Stats &operator+=(const CacheStats &other) {
+    hits_ += other.hits_;
+    misses_ += other.misses_;
+    flushes_ += other.flushes_;
+    evictions_ += other.evictions_;
+    dirty_evictions_ += other.dirty_evictions_;
+    memory_writes_ += other.memory_writes_;
     return *this;
   }
 };
