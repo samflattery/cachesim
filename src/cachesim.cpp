@@ -5,6 +5,7 @@
 #include "cache.h"
 #include "directory.h"
 #include "interconnect.h"
+#include "latencies.h"
 #include "numa_node.h"
 #include "protocols.h"
 
