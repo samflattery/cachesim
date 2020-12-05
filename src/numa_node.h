@@ -1,3 +1,4 @@
+#pragma once
 #include <utility>
 #include "cache.h"
 #include "interconnect.h"
