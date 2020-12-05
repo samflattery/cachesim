@@ -190,6 +190,6 @@ void Cache::printStats() const {
             << "Evictions:\t\t" << stats.evictions_ << "\n"
             << "Dirty Evictions:\t" << stats.dirty_evictions_ << "\n"
             << "Invalidations:\t\t" << stats.invalidations_ << "\n"
-            << "Cache Access Latency:\t" << stats.hits_ * CACHE_LATENCY << "ns\n"
-            << "Memory Write Latency:\t" << stats.memory_writes_ * MEMORY_LATENCY << "ns\n\n";
+            << "Cache Access Latency:\t" << outputLatency(stats.hits_ * CACHE_LATENCY) << "\n"
+            << "Memory Write Latency:\t" << outputLatency(stats.memory_writes_ * MEMORY_LATENCY) << "\n\n";
 }

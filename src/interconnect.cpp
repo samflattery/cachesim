@@ -191,7 +191,7 @@ void Interconnect::printStats() {
             << "Directory Events:\t\t" << directory_events_ << "\n"
             << "Global Interconnect Events:\t" << global_events_ << "\n"
             << "Local Interconnect Latency:\t"
-            << (cache_events_ + directory_events_) * LOCAL_INTERCONNECT_LATENCY << "ns\n"
-            << "Global Interconnect Latency:\t" << global_events_ * GLOBAL_INTERCONNECT_LATENCY
-            << "ns\n";
+            << outputLatency((cache_events_ + directory_events_) * LOCAL_INTERCONNECT_LATENCY) << "\n"
+            << "Global Interconnect Latency:\t" << outputLatency(global_events_ * GLOBAL_INTERCONNECT_LATENCY)
+            << "\n";
 }

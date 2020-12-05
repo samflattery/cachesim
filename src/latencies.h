@@ -1,5 +1,6 @@
 #pragma once
 #include <chrono>
+#include <string>
 // times are given in nanoseconds
 
 // taken from /sys/devices/system/node/node0/distance on andrew
@@ -23,3 +24,5 @@ static const int LOCAL_INTERCONNECT_LATENCY = 1;
 
 // NUMA node -> NUMA node latency
 static constexpr int GLOBAL_INTERCONNECT_LATENCY = LOCAL_INTERCONNECT_LATENCY * NUMA_DISTANCE;
+
+std::string outputLatency(size_t x);

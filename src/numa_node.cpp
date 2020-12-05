@@ -57,6 +57,6 @@ void NUMA::printStats() const {
   std::cout << std::endl;
   std::cout << "*** Memory Reads ***\n";
   std::cout << "Memory Reads:\t\t" << directory_.getMemoryReads() << "\n";
-  std::cout << "Memory Read Latency:\t" << directory_.getMemoryReads() * MEMORY_LATENCY << "ns\n";
+  std::cout << "Memory Read Latency:\t" << outputLatency(directory_.getMemoryReads() * MEMORY_LATENCY) << "\n";
   std::cout << std::endl;
 }
