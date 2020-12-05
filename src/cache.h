@@ -8,6 +8,9 @@
 
 #include "cache_block.h"
 #include "mesi_block.h"
+#include "moesi_block.h"
+#include "msi_block.h"
+#include "protocols.h"
 
 #define ADDR_LEN 64L
 
@@ -20,10 +23,20 @@ struct Address {
 
 // defines a cache set as a set of blocks
 struct Set {
-  Set(int associativity) {
+  Set(int associativity, Protocol protocol) {
     blocks_.reserve(associativity);
     for (int i = 0; i < associativity; i++) {
-      blocks_.push_back(new MESIBlock);
+      switch (protocol) {
+        case Protocol::MESI:
+          blocks_.push_back(new MESIBlock);
+          break;
+        case Protocol::MSI:
+          blocks_.push_back(new MSIBlock);
+          break;
+        case Protocol::MOESI:
+          blocks_.push_back(new MOESIBlock);
+          break;
+      }
     }
   }
   ~Set() {
@@ -41,7 +54,7 @@ class Cache {
  public:
   // construct a new cache with given id with 2^s sets, 2^b bytes per block and
   // associativity E
-  Cache(int id, int numa_node, int s, int E, int b);
+  Cache(int id, int numa_node, int s, int E, int b, Protocol protocol);
 
   // perform a read / write to a given address
   void cacheWrite(Address address);
@@ -58,12 +71,12 @@ class Cache {
   // *** communication with interconnect ***
   // invalidate a line
   void receiveInvalidate(long addr);
-  // send the data in a line back to the directory
-  void receiveFetch(long addr);
+  // send the data in a line back to the directory, may need to flush the line if dirty
+  void receiveFetch(Address address);
   // receive directory's response to a read miss
-  void receiveReadMiss(long addr, bool exclusive);
+  void receiveReadData(long addr, bool exclusive);
   // receive directory's response to a write miss
-  void receiveWriteMiss(long addr);
+  void receiveWriteData(long addr);
 
  private:
   // perform a read / write to given address
@@ -94,6 +107,7 @@ class Cache {
 
   size_t getHitCount() const;
   size_t getMissCount() const;
+  size_t getFlushCount() const;
   size_t getEvictionCount() const;
   size_t getInvalidationCount() const;
   size_t getDirtyEvictionCount() const;
@@ -107,6 +121,9 @@ class Cache {
   int E_;
   int b_;
   int B_;
+
+  // the cache protocol being used
+  Protocol protocol_;
 
   // the interconnect through which messages to the directory are sent
   // can be nullptr when running with a single cache

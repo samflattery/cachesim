@@ -6,6 +6,7 @@
 #include "directory.h"
 #include "interconnect.h"
 #include "numa_node.h"
+#include "protocols.h"
 
 // returns the NUMA node proc is on
 int procToNode(int proc, int num_procs, int numa_nodes) { return proc / (num_procs / numa_nodes); }
@@ -21,10 +22,10 @@ void setupInterconnects(std::vector<NUMA *> &nodes) {
 }
 
 void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
-                   bool verbose) {
+                   Protocol protocol, bool verbose) {
   std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
-    NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, verbose);
+    NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, protocol, verbose);
     nodes.push_back(node);
   }
 
@@ -41,11 +42,11 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
                 << proc << " " << rw << " " << std::hex << addr << std::dec << " " << node_id
                 << "\n";
     }
-    if (node_id >= numa_nodes or proc >= procs) {
-        std::cout << "Invalid value of p or n for given trace\n";
-        exit(1);
-    }
 
+    if (node_id >= numa_nodes or proc >= procs) {
+      std::cout << "Invalid value of p or n for given trace\n";
+      exit(1);
+    }
 
     // get the NUMA node that the requesting proc belongs to
     int proc_node = procToNode(proc, procs, numa_nodes);
@@ -72,9 +73,11 @@ int main(int argc, char **argv) {
   usage += "-t <tracefile>: name of memory trace to replay\n";
   usage += "-p <processors>: number of processors\n";
   usage += "-n <numa nodes>: number of NUMA nodes\n";
+  usage += "-m <MSI | MESI | MOESI>: the cache protocol to use\n";
 
   char opt;
   std::string filepath;
+  std::string protocol;
 
   int s;
   int E;
@@ -84,7 +87,7 @@ int main(int argc, char **argv) {
   bool verbose = false;
 
   // parse command line options
-  while ((opt = getopt(argc, argv, "hvs:E:b:t:p:n:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvs:E:b:t:p:n:m:")) != -1) {
     switch (opt) {
       case 'h':
         std::cout << usage;
@@ -110,6 +113,9 @@ int main(int argc, char **argv) {
       case 'n':
         numa_nodes = atoi(optarg);
         break;
+      case 'm':
+        protocol = std::string(optarg);
+        break;
       default:
         std::cerr << usage;
         return 1;
@@ -122,6 +128,19 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  Protocol prot;
+  if (protocol == "" || protocol == "MESI") {
+    // default to MESI
+    prot = Protocol::MESI;
+  } else if (protocol == "MSI") {
+    prot = Protocol::MSI;
+  } else if (protocol == "MOESI") {
+    prot = Protocol::MOESI;
+  } else {
+    std::cerr << "Invalid protocol, must be <MSI|MESI|MOESI>\n";
+    return 1;
+  }
+
   std::ifstream trace(filepath);
   if (!trace.is_open()) {
     std::cerr << "Invalid trace file\n";
@@ -129,7 +148,7 @@ int main(int argc, char **argv) {
   }
 
   // run the input trace on the cache
-  runSimulation(s, E, b, trace, procs, numa_nodes, verbose);
+  runSimulation(s, E, b, trace, procs, numa_nodes, prot, verbose);
 
   trace.close();
 

@@ -1,6 +1,6 @@
 #include "cache.h"
 
-Cache::Cache(int id, int numa_node, int s, int E, int b)
+Cache::Cache(int id, int numa_node, int s, int E, int b, Protocol protocol)
     : cache_id_(id),
       numa_node_(numa_node),
       s_(s),
@@ -8,11 +8,12 @@ Cache::Cache(int id, int numa_node, int s, int E, int b)
       E_(E),
       b_(b),
       B_(1 << b),
+      protocol_(protocol),
       interconnect_(nullptr) {
   // construct sets in a loop to make sure that they are not copied pointers
   sets_.reserve(S_);
   for (int i = 0; i < S_; i++) {
-    sets_.push_back(std::make_shared<Set>(E));
+    sets_.push_back(std::make_shared<Set>(E, protocol_));
   }
 }
 
@@ -127,8 +128,8 @@ void Cache::performInterconnectAction(InterconnectAction action, Address address
     case InterconnectAction::BUSRDX:
       interconnect_->sendBusRdX(cache_id_, address);
       break;
-    case InterconnectAction::FLUSH:
-      // TODO(samflattery) add flush case
+    case InterconnectAction::BROADCAST:
+      interconnect_->sendBroadcast(cache_id_, address);
       break;
     case InterconnectAction::NOACTION:
       break;
@@ -142,17 +143,18 @@ void Cache::receiveInvalidate(long addr) {
   block->invalidate();
 };
 
-void Cache::receiveFetch(long addr) {
-  auto block = findInCache(addr);
-  block->flush();
+void Cache::receiveFetch(Address address) {
+  auto block = findInCache(address.addr);
+  block->fetch();
+  interconnect_->sendData(cache_id_, address);
 }
 
-void Cache::receiveReadMiss(long addr, bool exclusive) {
+void Cache::receiveReadData(long addr, bool exclusive) {
   auto block = findInCache(addr);
   block->receiveReadData(exclusive);
 }
 
-void Cache::receiveWriteMiss(long addr) {
+void Cache::receiveWriteData(long addr) {
   auto block = findInCache(addr);
   block->receiveWriteData();
 }
@@ -172,6 +174,16 @@ size_t Cache::getMissCount() const {
   for (auto set : sets_) {
     for (auto block : set->blocks_) {
       count += block->getMissCount();
+    }
+  }
+  return count;
+}
+
+size_t Cache::getFlushCount() const {
+  size_t count = 0;
+  for (auto set : sets_) {
+    for (auto block : set->blocks_) {
+      count += block->getFlushCount();
     }
   }
   return count;
@@ -215,9 +227,10 @@ void Cache::printState() const {
 
 void Cache::printStats() const {
   std::cout << "\n*** Cache " << cache_id_ << " ***\n"
-            << "miss_count:\t\t" << getMissCount() << "\n"
-            << "hit_count:\t\t" << getHitCount() << "\n"
-            << "eviction_count:\t\t" << getEvictionCount() << "\n"
-            << "invalidation_count:\t" << getInvalidationCount() << "\n"
-            << "dirty_blocks_evicted:\t" << getDirtyEvictionCount() << "\n\n";
+            << "Misses:\t\t" << getMissCount() << "\n"
+            << "Hits:\t\t" << getHitCount() << "\n"
+            << "Flushes:\t\t" << getFlushCount() << "\n"
+            << "Evictions:\t\t" << getEvictionCount() << "\n"
+            << "Dirty Evictions:\t" << getDirtyEvictionCount() << "\n"
+            << "Invalidations:\t" << getInvalidationCount() << "\n\n";
 }

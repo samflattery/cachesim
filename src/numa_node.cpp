@@ -1,13 +1,15 @@
 #include "numa_node.h"
 
-NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, bool verbose)
+NUMA::NUMA(int num_procs, int num_nodes, int node_id, int s, int E, int b, Protocol protocol,
+           bool verbose)
     : node_id_(node_id),
       num_nodes_(num_nodes),
       num_procs_(num_procs),
       procs_per_node_(num_procs_ / num_nodes_),
-      directory_(num_procs, b) {
+      directory_(num_procs, b, protocol, node_id_) {
   for (int i = 0; i < procs_per_node_; ++i) {
-    caches_.push_back(Cache(procs_per_node_ * node_id + i, node_id, s, E, b));
+    int cache_id = procs_per_node_ * node_id + i;
+    caches_.push_back(Cache(cache_id, node_id, s, E, b, protocol));
   }
 
   if (node_id == 0) {
@@ -40,4 +42,6 @@ void NUMA::printStats() const {
   for (const auto &cache : caches_) {
     cache.printStats();
   }
+  interconnect_->printStats();
+  std::cout << std::endl;
 }

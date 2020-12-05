@@ -1,6 +1,11 @@
 #pragma once
 
-enum class InterconnectAction { NOACTION, BUSRD, BUSRDX, FLUSH };
+enum class InterconnectAction {
+  NOACTION,
+  BUSRD,
+  BUSRDX,
+  BROADCAST /* broadcast an update to a cache in the O state in MOESI */
+};
 
 // Abstract class for a cache block
 class CacheBlock {
@@ -9,6 +14,7 @@ class CacheBlock {
       : dirty_(false),
         tag_(0L),
         last_used_(0L),
+        flushes_(0L),
         hit_count_(0L),
         evictions_(0L),
         miss_count_(0L),
@@ -27,6 +33,7 @@ class CacheBlock {
   // Get stats on the block
   size_t getHitCount() { return hit_count_; }
   size_t getMissCount() { return miss_count_; }
+  size_t getFlushCount() { return flushes_; }
   size_t getEvictionCount() { return evictions_; }
   size_t getInvalidationCount() { return invalidations_; }
   size_t getDirtyEvictionCount() { return dirty_evictions_; }
@@ -44,11 +51,11 @@ class CacheBlock {
   // interconnect invalidated my line
   virtual void invalidate() = 0;
 
-  // flush to main memory
-  virtual void flush() = 0;
+  // fetch a line, flushing to main memory if the line is dirty
+  virtual void fetch() = 0;
 
   // response from interconnect after read miss
-  virtual void receiveReadData(bool exclusive) = 0;
+  virtual void receiveReadData([[maybe_unused]] bool exclusive) = 0;
 
   // response from interconnect after write miss
   virtual void receiveWriteData() = 0;
@@ -63,6 +70,9 @@ class CacheBlock {
   // the NUMA node that the memory stored in this block belongs to so when we evict we know where
   // to send the eviction message to
   int numa_node_;
+
+  // number of times the block has been flushed to memory
+  size_t flushes_;
 
   size_t hit_count_;
   size_t evictions_;

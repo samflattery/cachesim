@@ -31,9 +31,8 @@ InterconnectAction MESIBlock::updateState(bool is_write) {
       return InterconnectAction::NOACTION;
     case MESI::S:
       if (is_write) {
-        // TODO(samflattery) consider this a miss as the upgrade is required?
         miss_count_++;
-        state_ = MESI::S;
+        state_ = MESI::M;
         return InterconnectAction::BUSRDX;
       } else {
         // nothing to be done in read case, stays in shared state
@@ -57,7 +56,9 @@ InterconnectAction MESIBlock::updateState(bool is_write) {
 
 InterconnectAction MESIBlock::evictAndReplace(bool is_write, long tag, int new_node) {
   if (state_ != MESI::I) {
+    // evicting a dirty block causes a flush to memory
     if (dirty_) {
+      flushes_++;
       dirty_evictions_++;
     }
     evictions_++;
@@ -97,8 +98,11 @@ void MESIBlock::invalidate() {
   state_ = MESI::I;
 }
 
-void MESIBlock::flush() {
+void MESIBlock::fetch() {
   assert(state_ == MESI::E || state_ == MESI::M);
+  if (state_ == MESI::M) {
+    flushes_++;
+  }
   state_ = MESI::S;
 }
 
