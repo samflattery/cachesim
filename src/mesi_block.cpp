@@ -108,4 +108,4 @@ void MESIBlock::fetch() {
 
 void MESIBlock::receiveReadData(bool exclusive) { state_ = exclusive ? MESI::E : MESI::S; }
 
-void MESIBlock::receiveWriteData() { std::cout << state_; state_ = MESI::M; }
+void MESIBlock::receiveWriteData() { state_ = MESI::M; }
