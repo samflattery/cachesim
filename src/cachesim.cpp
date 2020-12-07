@@ -115,17 +115,17 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
 
 int main(int argc, char **argv) {
   std::string usage;
-  usage += "-h: help\n";
-  usage += "-v: verbose output that displays trace info\n";
-  usage += "-a: display aggregate stats\n";
-  usage += "-i: display individual stats (i.e.per cache, per NUMA node)\n";
+  usage += "-t <tracefile>: name of memory trace to replay\n";
+  usage += "-p <processors>: number of processors used to generate trace\n";
+  usage += "-n <numa nodes>: number of NUMA nodes used to generate trace\n";
+  usage += "-m <MSI | MESI | MOESI>: the cache protocol to use\n";
   usage += "-s <s>: number of set index bits (S = 2^s)\n";
   usage += "-E <E>: associativity (number of lines per set)\n";
   usage += "-b <b>: number of block bits (B = 2^b)\n";
-  usage += "-t <tracefile>: name of memory trace to replay\n";
-  usage += "-p <processors>: number of processors\n";
-  usage += "-n <numa nodes>: number of NUMA nodes\n";
-  usage += "-m <MSI | MESI | MOESI>: the cache protocol to use\n";
+  usage += "-v: verbose output that displays trace info\n";
+  usage += "-a: display aggregate stats\n";
+  usage += "-i: display individual stats (i.e.per cache, per NUMA node)\n";
+  usage += "-h: help\n";
 
   char opt;
   std::string filepath;
