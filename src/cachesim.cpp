@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
   usage += "-h: help\n";
   usage += "-v: verbose output that displays trace info\n";
   usage += "-a: display aggregate stats\n";
-  usage += "-i: display individual stats (i.e.) per cache, per NUMA node\n";
+  usage += "-i: display individual stats (i.e.per cache, per NUMA node)\n";
   usage += "-s <s>: number of set index bits (S = 2^s)\n";
   usage += "-E <E>: associativity (number of lines per set)\n";
   usage += "-b <b>: number of block bits (B = 2^b)\n";

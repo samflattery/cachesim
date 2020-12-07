@@ -108,7 +108,7 @@ int getNumaNode(VOID *addr) {
 // Print a memory read record
 VOID RecordMemRead(VOID *ip, VOID *addr) {
   PIN_GetLock(&lock, 0);
-  fprintf(trace, "%d W %p %d\n", PIN_ThreadId(), addr, getNumaNode(addr));
+  fprintf(trace, "%d R %p %d\n", PIN_ThreadId(), addr, getNumaNode(addr));
   PIN_ReleaseLock(&lock);
 }
 
