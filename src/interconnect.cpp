@@ -9,6 +9,7 @@ Interconnect::Interconnect(int numa_node, int num_numa_nodes, int num_procs,
       directory_(directory),
       cache_events_(0L),
       directory_events_(0L),
+      global_events_(0L),
       verbose_(verbose) {
   interconnects_.resize(num_numa_nodes_);
 
@@ -59,19 +60,19 @@ void Interconnect::sendBusRdX(int src, Address address) {
   }
 }
 
-void Interconnect::sendData(int src, Address address) {
+void Interconnect::sendData(int src, Address address, bool is_dirty) {
   if (address.numa_node != numa_node_) {
     global_events_++;
     cache_events_++;
     if (verbose_)
       std::cout << "sending over the main interconnect from " << numa_node_ << " to "
                 << address.numa_node << "\n";
-    interconnects_[address.numa_node]->sendData(src, address);
+    interconnects_[address.numa_node]->sendData(src, address, is_dirty);
   } else {
     if (verbose_)
       std::cout << "cache " << src << " sending Data of " << std::hex << address.addr << std::dec
                 << "\n";
-    directory_->receiveData(src, address.addr);
+    directory_->receiveData(src, address.addr, is_dirty);
     cache_events_++;
   }
 }

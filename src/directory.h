@@ -46,7 +46,8 @@ class Directory {
   void receiveBusRdX(int cache_id, unsigned long address);
   void receiveEviction(int cache_id, unsigned long address);
   // receive data back from a cache after a fetch call
-  void receiveData(int cache_id, unsigned long address);
+  // in the MOESI case, if the line is dirty the owner of the line is changed
+  void receiveData(int cache_id, unsigned long address, bool is_dirty);
   // receive a message to broadcast new data from an updated O block to all other sharers
   void receiveBroadcast(int cache_id, unsigned long address);
 
@@ -70,7 +71,7 @@ class Directory {
   Protocol protocol_;
   int numa_node_;
   size_t memory_reads_;
-  std::unordered_map<long, DirectoryLine *> directory_;
+  std::unordered_map<unsigned long, DirectoryLine *> directory_;
 
   // the interconnect through which messages are sent to the caches
   // should never be null after initialization of the interconnect since if we have a directory

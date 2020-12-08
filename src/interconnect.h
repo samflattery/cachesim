@@ -25,7 +25,7 @@ class Interconnect {
   // cache -> directory messages
   void sendBusRd(int src, Address address);
   void sendBusRdX(int src, Address address);
-  void sendData(int src, Address address);
+  void sendData(int src, Address address, bool is_dirty);
   void sendEviction(int src, Address address);
   void sendBroadcast(int src, Address address);
 

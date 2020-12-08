@@ -146,7 +146,7 @@ void Cache::receiveInvalidate(long addr) {
 void Cache::receiveFetch(Address address) {
   auto block = findInCache(address.addr);
   block->fetch();
-  interconnect_->sendData(cache_id_, address);
+  interconnect_->sendData(cache_id_, address, block->isDirty());
 }
 
 void Cache::receiveReadData(long addr, bool exclusive) {

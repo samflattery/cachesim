@@ -22,6 +22,7 @@ void Directory::connectToInterconnect(Interconnect *interconnect) { interconnect
 
 int Directory::findOwnerEM(DirectoryLine *line) {
   assert(line->state_ == DirectoryState::EM);
+  assert(std::count(line->presence_.begin(), line->presence_.end(), true) == 1);
   for (size_t i = 0; i < line->presence_.size(); ++i) {
     if (line->presence_[i]) return i;
   }
@@ -42,13 +43,14 @@ void Directory::invalidateSharers(DirectoryLine *line, int new_owner, unsigned l
         line->owner_ = -1;
       }
       interconnect_->sendInvalidate(i, addr);
+      line->presence_[i] = false;
     }
   }
 }
 
-void Directory::receiveData(int cache_id, unsigned long addr) {
+void Directory::receiveData(int cache_id, unsigned long addr, bool is_dirty) {
   // update with owning state if we're in MOESI
-  if (protocol_ == Protocol::MOESI) {
+  if (is_dirty && protocol_ == Protocol::MOESI) {
     auto line = getLine(getAddr(addr));
     line->owner_ = cache_id;
   }
@@ -77,7 +79,7 @@ void Directory::receiveEviction(int cache_id, unsigned long address) {
   line->presence_[cache_id] = 0;
 
   // if the owner is evicted, reset the owner so future reads to that block go to main memory
-  if (line->owner_ == cache_id) {
+  if (protocol_ == Protocol::MOESI && line->owner_ == cache_id) {
     line->owner_ = -1;
   }
 
@@ -92,6 +94,7 @@ void Directory::receiveEviction(int cache_id, unsigned long address) {
       // don't promote to EM if there is only one sharer left since the last remaining cache
       // doesn't know it has exclusive access
       num_sharers = std::count(line->presence_.begin(), line->presence_.end(), true);
+
       if (num_sharers == 0) line->state_ = DirectoryState::U;
 
       break;
@@ -115,10 +118,10 @@ void Directory::receiveBusRd(int cache_id, unsigned long address) {
 
       // don't promote read requests to EM in MSI since caches don't know they have exclusive read
       // access
-      if (protocol_ == Protocol::MESI) {
-        line->state_ = DirectoryState::EM;
-      } else if (protocol_ == Protocol::MSI) {
+      if (protocol_ == Protocol::MSI) {
         line->state_ = DirectoryState::S;
+      } else {
+        line->state_ = DirectoryState::EM;
       }
       break;
     case DirectoryState::S:
