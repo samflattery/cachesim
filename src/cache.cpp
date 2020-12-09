@@ -141,7 +141,7 @@ void Cache::performInterconnectAction(InterconnectAction action, Address address
 void Cache::receiveInvalidate(long addr) {
   auto block = findInCache(addr);
   block->invalidate();
-};
+}
 
 void Cache::receiveFetch(Address address) {
   auto block = findInCache(address.addr);

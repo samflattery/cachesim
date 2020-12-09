@@ -1,6 +1,6 @@
 CC = gcc
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Wshadow -Wpedantic
+CXXFLAGS = -std=c++17 -O3 -Wall -Wextra -Wshadow -Wpedantic
 DEPS = latencies.h protocols.h numa_node.h cache_block.h moesi_block.h mesi_block.h msi_block.h directory.h cache.h interconnect.h
 OBJDIR = build
 vpath %.h src

@@ -131,10 +131,11 @@ int main(int argc, char **argv) {
   std::string filepath;
   std::string protocol;
 
-  int s;
-  int E;
-  int b;
-  int procs;
+  // default to Intel L1 cache
+  int s = 6;
+  int E = 8;
+  int b = 6;
+  int procs = 1;
   int numa_nodes = 1;
   bool verbose = false;
   bool aggregate = false;

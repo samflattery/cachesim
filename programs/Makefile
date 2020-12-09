@@ -1,7 +1,7 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Wshadow -Wpedantic
+CXXFLAGS = -std=c++11 -Wall -Wextra -Wshadow -Wpedantic -lpthread
 
 .PHONY: all
 all: $(patsubst %.cpp, %.out, $(wildcard *.cpp))
