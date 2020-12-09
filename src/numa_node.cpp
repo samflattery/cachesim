@@ -36,10 +36,11 @@ void NUMA::cacheWrite(int proc, unsigned long addr, int numa_node) {
   caches_[proc % procs_per_node_].cacheWrite({addr, numa_node});
 }
 
-Stats NUMA::getStats() const {
+Stats NUMA::getStats(bool skip0) const {
   Stats stats;
   for (const auto &cache : caches_) {
-    stats += cache.getStats();
+    if (!skip0 || cache.getID() != 0)
+	  stats += cache.getStats();
   }
   stats.memory_reads_ = directory_.getMemoryReads();
   stats.local_interconnect_ = interconnect_->getLocalEvents();
