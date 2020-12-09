@@ -1,0 +1,149 @@
+Running simulation with cache settings:
+set size:	64
+associativity:	8
+line size:	64
+
+	** Aggregate Stats Without Processor 0 ***
+
+Total Reads/Writes:		30821476
+
+Caches
+------
+Total Hits:		29398146
+Total Misses:		1423330
+Total Flushes:		1227865
+Total Evictions: 	1175531
+Total Dirty Evictions: 	1107664
+Total Invalidations: 	124755
+
+Interconnects
+-------------
+Total Local Interconnect Events: 	6875778
+Total Global Interconnect Events: 	2426031
+
+Memory
+------
+Total Memory Reads: 	1304906
+
+Latencies
+---------
+Cache Access Latency:		29ms
+Memory Read Latency:		130ms
+Memory Write Latency:		233ms
+Memory Access Latency:		364ms
+Local Interconnect Latency:	6ms
+Global Interconnect Latency:	4ms
+
+
+	NUMA NODE: 0
+	-----------
+*** Cache 0 ***
+Misses:			13298
+Hits:			544873
+Flushes:		2392
+Evictions:		12589
+Dirty Evictions:	2181
+Invalidations:		172
+Cache Access Latency:	544us
+Memory Write Latency:	457us
+
+
+*** Cache 1 ***
+Misses:			203560
+Hits:			4212221
+Flushes:		175392
+Evictions:		167954
+Dirty Evictions:	158199
+Invalidations:		17872
+Cache Access Latency:	4ms
+Memory Write Latency:	33ms
+
+
+*** Cache 2 ***
+Misses:			201871
+Hits:			4174755
+Flushes:		174530
+Evictions:		167048
+Dirty Evictions:	157553
+Invalidations:		17641
+Cache Access Latency:	4ms
+Memory Write Latency:	33ms
+
+
+*** Cache 3 ***
+Misses:			202794
+Hits:			4195821
+Flushes:		174867
+Evictions:		167615
+Dirty Evictions:	158136
+Invalidations:		17391
+Cache Access Latency:	4ms
+Memory Write Latency:	33ms
+
+*** Interconnect Events ***
+Cache Events:			2373812
+Directory Events:		1439842
+Global Interconnect Events:	1035463
+Local Interconnect Latency:	3ms
+Global Interconnect Latency:	2ms
+
+*** Memory Reads ***
+Memory Reads:		977897
+Memory Read Latency:	97ms
+
+	NUMA NODE: 1
+	-----------
+*** Cache 4 ***
+Misses:			203770
+Hits:			4208783
+Flushes:		175785
+Evictions:		167787
+Dirty Evictions:	158132
+Invalidations:		18319
+Cache Access Latency:	4ms
+Memory Write Latency:	33ms
+
+
+*** Cache 5 ***
+Misses:			203138
+Hits:			4182110
+Flushes:		175548
+Evictions:		168263
+Dirty Evictions:	158453
+Invalidations:		17721
+Cache Access Latency:	4ms
+Memory Write Latency:	33ms
+
+
+*** Cache 6 ***
+Misses:			203714
+Hits:			4203990
+Flushes:		175711
+Evictions:		168217
+Dirty Evictions:	158411
+Invalidations:		17905
+Cache Access Latency:	4ms
+Memory Write Latency:	33ms
+
+
+*** Cache 7 ***
+Misses:			204483
+Hits:			4220466
+Flushes:		176032
+Evictions:		168647
+Dirty Evictions:	158780
+Invalidations:		17906
+Cache Access Latency:	4ms
+Memory Write Latency:	33ms
+
+*** Interconnect Events ***
+Cache Events:			1889961
+Directory Events:		1172163
+Global Interconnect Events:	1390568
+Local Interconnect Latency:	3ms
+Global Interconnect Latency:	2ms
+
+*** Memory Reads ***
+Memory Reads:		327009
+Memory Read Latency:	32ms
+
