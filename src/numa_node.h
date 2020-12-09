@@ -14,6 +14,7 @@ struct Stats {
     flushes_ += other.flushes_;
     evictions_ += other.evictions_;
     dirty_evictions_ += other.dirty_evictions_;
+    invalidations_ += other.invalidations_;
     local_interconnect_ += other.local_interconnect_;
     global_interconnect_ += other.global_interconnect_;
     memory_reads_ += other.memory_reads_;
@@ -27,6 +28,7 @@ struct Stats {
     flushes_ += other.flushes_;
     evictions_ += other.evictions_;
     dirty_evictions_ += other.dirty_evictions_;
+    invalidations_ += other.invalidations_;
     memory_writes_ += other.memory_writes_;
     return *this;
   }
