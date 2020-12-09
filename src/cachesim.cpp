@@ -22,13 +22,19 @@ void setupInterconnects(std::vector<NUMA *> &nodes) {
   }
 }
 
-void printAggregateStats(std::vector<NUMA *> &nodes) {
+void printAggregateStats(std::vector<NUMA *> &nodes, int total_events, bool skip0) {
   Stats stats;
   for (const auto &node : nodes) {
-    stats += node->getStats();
+    stats += node->getStats(skip0);
+  }
+  if (skip0) {
+    std::cout << "\t** Aggregate Stats Without P0 ***" << std::endl;
+  } else {
+    std::cout << "\t** Aggregate Stats ***" << std::endl;
   }
 
-  std::cout << "\t** Aggregate Stats ***" << std::endl
+  std::cout << std::endl
+            << "Total Events:\t\t" << total_events << std::endl
             << "\t----------------------" << std::endl
             << "Caches" << std::endl
             << "------" << std::endl
@@ -67,7 +73,8 @@ void printAggregateStats(std::vector<NUMA *> &nodes) {
 }
 
 void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
-                   Protocol protocol, bool individual, bool aggregate, bool verbose) {
+                   Protocol protocol, bool individual, bool aggregate,
+				   bool aggregate_skip0, bool verbose) {
   std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
     NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, protocol, verbose);
@@ -75,6 +82,8 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
   }
 
   setupInterconnects(nodes);
+  int total_events = 0;
+  int total_events_wo_0 = 0;
 
   int proc;     // the requesting proc
   char rw;      // whether it is a read or write
@@ -100,10 +109,17 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
     } else {
       nodes[proc_node]->cacheWrite(proc, addr, node_id);
     }
+	if (proc != 0) {
+	  total_events_wo_0++;
+	}
+	total_events++;
   }
 
   if (aggregate) {
-    printAggregateStats(nodes);
+    printAggregateStats(nodes, total_events, false);
+  }
+  if (aggregate_skip0) {
+	printAggregateStats(nodes, total_events_wo_0, true);
   }
   for (auto node : nodes) {
     if (individual) {
@@ -118,12 +134,13 @@ int main(int argc, char **argv) {
   usage += "-t <tracefile>: name of memory trace to replay\n";
   usage += "-p <processors>: number of processors used to generate trace\n";
   usage += "-n <numa nodes>: number of NUMA nodes used to generate trace\n";
-  usage += "-m <MSI | MESI | MOESI>: the cache protocol to use\n";
+  usage += "-m <MSI | MESI | MOESI>: the cache protocol to use, default is MESI\n";
   usage += "-s <s>: number of set index bits (S = 2^s)\n";
   usage += "-E <E>: associativity (number of lines per set)\n";
   usage += "-b <b>: number of block bits (B = 2^b)\n";
   usage += "-v: verbose output that displays trace info\n";
   usage += "-a: display aggregate stats\n";
+  usage += "-A: display aggregate stats those of proc 0 omitted\n";
   usage += "-i: display individual stats (i.e.per cache, per NUMA node)\n";
   usage += "-h: help\n";
 
@@ -139,10 +156,11 @@ int main(int argc, char **argv) {
   int numa_nodes = 1;
   bool verbose = false;
   bool aggregate = false;
+  bool aggregate_skip0 = false;
   bool individual = false;
 
   // parse command line options
-  while ((opt = getopt(argc, argv, "hvais:E:b:t:p:n:m:")) != -1) {
+  while ((opt = getopt(argc, argv, "hvaAis:E:b:t:p:n:m:")) != -1) {
     switch (opt) {
       case 'h':
         std::cout << usage;
@@ -153,6 +171,9 @@ int main(int argc, char **argv) {
       case 'a':
         aggregate = true;
         break;
+	  case 'A':
+	    aggregate_skip0 = true;
+		break;
       case 'i':
         individual = true;
         break;
@@ -209,7 +230,7 @@ int main(int argc, char **argv) {
   }
 
   // run the input trace on the cache
-  runSimulation(s, E, b, trace, procs, numa_nodes, prot, individual, aggregate, verbose);
+  runSimulation(s, E, b, trace, procs, numa_nodes, prot, individual, aggregate, aggregate_skip0, verbose);
 
   trace.close();
 

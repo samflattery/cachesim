@@ -45,7 +45,7 @@ class NUMA {
   void cacheWrite(int proc, unsigned long addr, int numa_node);
 
   void printStats() const;
-  Stats getStats() const;
+  Stats getStats(bool skip0) const;
 
   void connectInterconnect(std::pair<Interconnect *, int> pair);
   std::pair<Interconnect *, int> getInterconnect();

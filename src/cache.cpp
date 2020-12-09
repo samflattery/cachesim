@@ -193,3 +193,7 @@ void Cache::printStats() const {
             << "Cache Access Latency:\t" << outputLatency(stats.hits_ * CACHE_LATENCY) << "\n"
             << "Memory Write Latency:\t" << outputLatency(stats.memory_writes_ * MEMORY_LATENCY) << "\n\n";
 }
+
+int Cache::getID() const {
+  return cache_id_;
+}

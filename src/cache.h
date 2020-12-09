@@ -86,6 +86,8 @@ class Cache {
 
   CacheStats getStats() const;
 
+  int getID() const;
+
  private:
   // perform a read / write to given address
   void performOperation(Address address, bool is_write);
