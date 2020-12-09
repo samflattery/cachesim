@@ -113,6 +113,9 @@ void MOESIBlock::invalidate() {
 }
 
 void MOESIBlock::fetch() {
+  if (!(state_ == MOESI::O || state_ == MOESI::E || state_ == MOESI::M)) {
+    std::cout << state_ << std::endl;
+  }
   assert(state_ == MOESI::O || state_ == MOESI::E || state_ == MOESI::M);
   if (state_ == MOESI::M) {
     // we now own the data and service other cache's requests, so we don't have to flush

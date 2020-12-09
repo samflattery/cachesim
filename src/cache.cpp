@@ -43,7 +43,7 @@ CacheBlock* Cache::findInSet(long tag, std::shared_ptr<Set> set) {
   // run the entire loop here so we can increment last_used_ for all blocks
   for (auto block : set->blocks_) {
     block->incrLastUsed();
-    if (block->getTag() == tag) {
+    if (block->isValid() && block->getTag() == tag) {
       found = block;
     }
   }
@@ -52,10 +52,17 @@ CacheBlock* Cache::findInSet(long tag, std::shared_ptr<Set> set) {
 }
 
 void Cache::evictAndReplace(long tag, std::shared_ptr<Set> set, Address address, bool is_write) {
-  // find the block with the largest last_used time stamp
-  auto LRU_block = std::max_element(
-      set->blocks_.begin(), set->blocks_.end(),
-      [](auto const& lhs, auto const& rhs) { return lhs->getLastUsed() <= rhs->getLastUsed(); });
+  // find the block with the largest last_used time stamp or an invalid block
+  auto LRU_block = set->blocks_.begin();
+  for (auto it = set->blocks_.begin(); it != set->blocks_.end(); ++it) {
+    // if we find an invalid block, evict that straight away
+    if (!(*it)->isValid()) {
+      LRU_block = it;
+      break;
+    } else if ((*it)->getLastUsed() >= (*LRU_block)->getLastUsed()) {
+      LRU_block = it;
+    }
+  }
 
   if ((*LRU_block)->isValid()) {
     sendEviction((*LRU_block)->getTag(), address.addr, (*LRU_block)->getNumaNode());

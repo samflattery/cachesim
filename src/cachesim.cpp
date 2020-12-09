@@ -33,8 +33,7 @@ void printAggregateStats(std::vector<NUMA *> &nodes, int total_events, bool skip
     std::cout << "\t** Aggregate Stats ***" << std::endl;
   }
 
-  std::cout << std::endl
-            << "Total Reads/Writes:\t\t" << total_events << std::endl << std::endl;
+  std::cout << std::endl << "Total Reads/Writes:\t\t" << total_events << std::endl << std::endl;
 
   std::cout << "Caches" << std::endl
             << "------" << std::endl

@@ -127,6 +127,7 @@ void Interconnect::sendFetch(int dest, Address address) {
     if (verbose_)
       std::cout << "sending Fetch of " << std::hex << address.addr << std::dec << " to cache "
                 << dest << "\n";
+
     (*caches_)[dest % (num_procs_ / num_numa_nodes_)].receiveFetch(address);
     directory_events_++;
   }

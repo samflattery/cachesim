@@ -149,7 +149,6 @@ void Directory::receiveBusRd(int cache_id, unsigned long address) {
       break;
   }
 }
-
 void Directory::receiveBusRdX(int cache_id, unsigned long address) {
   unsigned long addr = getAddr(address);
   DirectoryLine *line = getLine(addr);
