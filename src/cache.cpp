@@ -191,9 +191,8 @@ void Cache::printStats() const {
             << "Dirty Evictions:\t" << stats.dirty_evictions_ << "\n"
             << "Invalidations:\t\t" << stats.invalidations_ << "\n"
             << "Cache Access Latency:\t" << outputLatency(stats.hits_ * CACHE_LATENCY) << "\n"
-            << "Memory Write Latency:\t" << outputLatency(stats.memory_writes_ * MEMORY_LATENCY) << "\n\n";
+            << "Memory Write Latency:\t" << outputLatency(stats.memory_writes_ * MEMORY_LATENCY)
+            << "\n\n";
 }
 
-int Cache::getID() const {
-  return cache_id_;
-}
+int Cache::getID() const { return cache_id_; }

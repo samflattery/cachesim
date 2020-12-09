@@ -28,15 +28,15 @@ void printAggregateStats(std::vector<NUMA *> &nodes, int total_events, bool skip
     stats += node->getStats(skip0);
   }
   if (skip0) {
-    std::cout << "\t** Aggregate Stats Without P0 ***" << std::endl;
+    std::cout << "\t** Aggregate Stats Without Processor 0 ***" << std::endl;
   } else {
     std::cout << "\t** Aggregate Stats ***" << std::endl;
   }
 
   std::cout << std::endl
-            << "Total Events:\t\t" << total_events << std::endl
-            << "\t----------------------" << std::endl
-            << "Caches" << std::endl
+            << "Total Reads/Writes:\t\t" << total_events << std::endl << std::endl;
+
+  std::cout << "Caches" << std::endl
             << "------" << std::endl
             << "Total Hits:\t\t" << stats.hits_ << std::endl
             << "Total Misses:\t\t" << stats.misses_ << std::endl
@@ -60,8 +60,10 @@ void printAggregateStats(std::vector<NUMA *> &nodes, int total_events, bool skip
   std::cout << "Latencies" << std::endl
             << "---------" << std::endl
             << "Cache Access Latency:\t\t" << outputLatency(stats.hits_ * CACHE_LATENCY) << "\n"
-            << "Memory Read Latency:\t\t" << outputLatency(stats.memory_reads_ * MEMORY_LATENCY) << "\n"
-            << "Memory Write Latency:\t\t" << outputLatency(stats.memory_writes_ * MEMORY_LATENCY) << "\n"
+            << "Memory Read Latency:\t\t" << outputLatency(stats.memory_reads_ * MEMORY_LATENCY)
+            << "\n"
+            << "Memory Write Latency:\t\t" << outputLatency(stats.memory_writes_ * MEMORY_LATENCY)
+            << "\n"
             << "Memory Access Latency:\t\t"
             << outputLatency((stats.memory_reads_ + stats.memory_writes_) * MEMORY_LATENCY) << "\n"
             << "Local Interconnect Latency:\t"
@@ -73,8 +75,8 @@ void printAggregateStats(std::vector<NUMA *> &nodes, int total_events, bool skip
 }
 
 void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int numa_nodes,
-                   Protocol protocol, bool individual, bool aggregate,
-				   bool aggregate_skip0, bool verbose) {
+                   Protocol protocol, bool individual, bool aggregate, bool aggregate_skip0,
+                   bool verbose) {
   std::vector<NUMA *> nodes;
   for (int i = 0; i < numa_nodes; ++i) {
     NUMA *node = new NUMA(procs, numa_nodes, i, s, E, b, protocol, verbose);
@@ -109,18 +111,20 @@ void runSimulation(int s, int E, int b, std::ifstream &trace, int procs, int num
     } else {
       nodes[proc_node]->cacheWrite(proc, addr, node_id);
     }
-	if (proc != 0) {
-	  total_events_wo_0++;
-	}
-	total_events++;
+    if (proc != 0) {
+      total_events_wo_0++;
+    }
+    total_events++;
   }
 
   if (aggregate) {
     printAggregateStats(nodes, total_events, false);
   }
+
   if (aggregate_skip0) {
-	printAggregateStats(nodes, total_events_wo_0, true);
+    printAggregateStats(nodes, total_events_wo_0, true);
   }
+
   for (auto node : nodes) {
     if (individual) {
       node->printStats();
@@ -140,7 +144,7 @@ int main(int argc, char **argv) {
   usage += "-b <b>: number of block bits (B = 2^b)\n";
   usage += "-v: verbose output that displays trace info\n";
   usage += "-a: display aggregate stats\n";
-  usage += "-A: display aggregate stats those of proc 0 omitted\n";
+  usage += "-A: display aggregate stats with those of proc 0 omitted\n";
   usage += "-i: display individual stats (i.e.per cache, per NUMA node)\n";
   usage += "-h: help\n";
 
@@ -171,9 +175,9 @@ int main(int argc, char **argv) {
       case 'a':
         aggregate = true;
         break;
-	  case 'A':
-	    aggregate_skip0 = true;
-		break;
+      case 'A':
+        aggregate_skip0 = true;
+        break;
       case 'i':
         individual = true;
         break;
@@ -230,7 +234,8 @@ int main(int argc, char **argv) {
   }
 
   // run the input trace on the cache
-  runSimulation(s, E, b, trace, procs, numa_nodes, prot, individual, aggregate, aggregate_skip0, verbose);
+  runSimulation(s, E, b, trace, procs, numa_nodes, prot, individual, aggregate, aggregate_skip0,
+                verbose);
 
   trace.close();
 

@@ -116,7 +116,7 @@ class Cache {
   void sendEviction(unsigned long tag, unsigned long addr, int numa_node);
 
   int cache_id_;
-  int numa_node_;
+  [[maybe_unused]] int numa_node_;
 
   // the settings of the cache such as line size
   int s_;
