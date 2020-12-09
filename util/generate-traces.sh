@@ -13,9 +13,14 @@ make -j8 programs
 cd ~/pin/source/tools/ManualExamples
 make
 
+# make the results directory if it doesn't exist
+[ ! -d ~/cachesim/results ] && mkdir ~/cachesim/results
+
 progs=(ts_lock tts_lock ticketlock arraylock arraylock_aligned)
 protocols=(MSI MESI MOESI)
 prompt=false
+
+threads=8
 
 generate_traces () {
     cd ~/pin/source/tools/ManualExamples
@@ -34,32 +39,31 @@ generate_traces () {
 
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
-            echo "Generating trace for ${prog} with 8 threads"
-            ../../../pin -t obj-intel64/pinatrace.so -o ~/cachesim/traces/${prog}.trace -- ~/cachesim/programs/${prog}.out 8
+            echo "Generating trace for ${prog} with ${threads} threads"
+            ../../../pin -t obj-intel64/pinatrace.so -o ~/cachesim/traces/${prog}${threads}.trace -- ~/cachesim/programs/${prog}.out ${threads}
         fi
     done
 }
 
 run_sim () {
     for prog in ${progs[@]}; do
-        for protocol in ${protocols[@]}; do
+        if [ $prompt = true ]
+        then
+            read -p "Run sims for ${prog}?" -n 1 -r
+            echo
+        fi
 
-            if [ $prompt = true ]
-            then
-                read -p "Run sims for ${prog}?" -n 1 -r
-                echo
-            fi
+        if [ $prompt = false ]
+        then REPLY="y"
+        fi
 
-            if [ $prompt = false ]
-            then REPLY="y"
-            fi
-
-            if [[ $REPLY =~ ^[Yy]$ ]]
-            then
-                echo "Running sim on ${prog} with protocol ${protocol}"
-                ~/cachesim/cachesim -t ~/cachesim/traces/${prog}.trace -p 8 -n 2 -m ${protocol} -A -i > ~/cachesim/results/${prog}_8_${protocol}.txt
-            fi
-        done
+        if [[ $REPLY =~ ^[Yy]$ ]]
+        then
+            for protocol in ${protocols[@]}; do
+                echo "Running sim on ${prog} with protocol ${protocol} and ${threads} threads"
+                ~/cachesim/cachesim -t ~/cachesim/traces/${prog}${threads}.trace -p ${threads} -n 2 -m ${protocol} -A -i > ~/cachesim/results/${prog}_${threads}_${protocol}.txt
+            done
+        fi
     done
 }
 
