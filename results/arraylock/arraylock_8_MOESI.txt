@@ -5,25 +5,25 @@ line size:	64
 
 	** Aggregate Stats Without Processor 0 ***
 
-Total Reads/Writes:		3911488
+Total Reads/Writes:		3688320
 
 Caches
 ------
-Total Hits:		3910274
+Total Hits:		3687106
 Total Misses:		1214
 Total Flushes:		0
 Total Evictions: 	0
 Total Dirty Evictions: 	0
-Total Invalidations: 	546
+Total Invalidations: 	545
 
 Interconnects
 -------------
-Total Local Interconnect Events: 	53637
-Total Global Interconnect Events: 	10113
+Total Local Interconnect Events: 	59589
+Total Global Interconnect Events: 	16112
 
 Memory
 ------
-Total Memory Reads: 	13630
+Total Memory Reads: 	13608
 
 Latencies
 ---------
@@ -31,17 +31,17 @@ Cache Access Latency:		3ms
 Memory Read Latency:		1ms
 Memory Write Latency:		0ns
 Memory Access Latency:		1ms
-Local Interconnect Latency:	53us
-Global Interconnect Latency:	20us
+Local Interconnect Latency:	59us
+Global Interconnect Latency:	32us
 
 
 	NUMA NODE: 0
 	-----------
 *** Cache 0 ***
-Hits:			538798
-Misses:			13145
+Hits:			538824
+Misses:			13124
 Flushes:		2160
-Evictions:		12543
+Evictions:		12523
 Dirty Evictions:	2160
 Invalidations:		59
 Cache Access Latency:	538us
@@ -49,101 +49,101 @@ Memory Write Latency:	432us
 
 
 *** Cache 1 ***
-Hits:			461045
+Hits:			448021
 Misses:			239
 Flushes:		0
 Evictions:		0
 Dirty Evictions:	0
-Invalidations:		82
-Cache Access Latency:	461us
+Invalidations:		81
+Cache Access Latency:	448us
 Memory Write Latency:	0ns
 
 
 *** Cache 2 ***
-Hits:			597669
+Hits:			540917
 Misses:			157
 Flushes:		0
 Evictions:		0
 Dirty Evictions:	0
 Invalidations:		74
-Cache Access Latency:	597us
+Cache Access Latency:	540us
 Memory Write Latency:	0ns
 
 
 *** Cache 3 ***
-Hits:			543567
+Hits:			475759
 Misses:			163
 Flushes:		0
 Evictions:		0
 Dirty Evictions:	0
 Invalidations:		78
-Cache Access Latency:	543us
+Cache Access Latency:	475us
 Memory Write Latency:	0ns
 
 *** Interconnect Events ***
-Cache Events:			27685
-Directory Events:		15839
-Global Interconnect Events:	6520
-Local Interconnect Latency:	43us
-Global Interconnect Latency:	13us
+Cache Events:			26867
+Directory Events:		14676
+Global Interconnect Events:	10164
+Local Interconnect Latency:	41us
+Global Interconnect Latency:	20us
 
 *** Memory Reads ***
-Memory Reads:		11007
-Memory Read Latency:	1ms
+Memory Reads:		8520
+Memory Read Latency:	852us
 
 	NUMA NODE: 1
 	-----------
 *** Cache 4 ***
-Hits:			524898
+Hits:			492978
 Misses:			160
 Flushes:		0
 Evictions:		0
 Dirty Evictions:	0
 Invalidations:		77
-Cache Access Latency:	524us
+Cache Access Latency:	492us
 Memory Write Latency:	0ns
 
 
 *** Cache 5 ***
-Hits:			570333
+Hits:			513453
 Misses:			165
 Flushes:		0
 Evictions:		0
 Dirty Evictions:	0
 Invalidations:		79
-Cache Access Latency:	570us
+Cache Access Latency:	513us
 Memory Write Latency:	0ns
 
 
 *** Cache 6 ***
-Hits:			546556
+Hits:			544684
 Misses:			166
 Flushes:		0
 Evictions:		0
 Dirty Evictions:	0
 Invalidations:		80
-Cache Access Latency:	546us
+Cache Access Latency:	544us
 Memory Write Latency:	0ns
 
 
 *** Cache 7 ***
-Hits:			666206
+Hits:			671294
 Misses:			164
 Flushes:		0
 Evictions:		0
 Dirty Evictions:	0
 Invalidations:		76
-Cache Access Latency:	666us
+Cache Access Latency:	671us
 Memory Write Latency:	0ns
 
 *** Interconnect Events ***
-Cache Events:			6147
-Directory Events:		3966
-Global Interconnect Events:	3593
-Local Interconnect Latency:	10us
-Global Interconnect Latency:	7us
+Cache Events:			10937
+Directory Events:		7109
+Global Interconnect Events:	5948
+Local Interconnect Latency:	18us
+Global Interconnect Latency:	11us
 
 *** Memory Reads ***
-Memory Reads:		2623
-Memory Read Latency:	262us
+Memory Reads:		5088
+Memory Read Latency:	508us
 

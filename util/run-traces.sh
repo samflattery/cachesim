@@ -4,6 +4,7 @@
 # run with -t to generate all traces
 # run with -s to run all sims
 # run with -p as well as one/both of these to prompt before doing anything
+# run with -a to generate generate traces and run sims for thread counts 1,2,4,8,16
 
 # make everything
 cd ~/cachesim
@@ -95,13 +96,30 @@ run_sim () {
     done
 }
 
-while getopts ":stp" flag; do
+all=false
+
+while getopts ":stpa" flag; do
     case "${flag}" in
-        t) trace='true';;
-        s) sim='true';;
-        p) prompt='true';;
+        t) trace=true;;
+        s) sim=true;;
+        p) prompt=true;;
+        a) all=true;;
     esac
 done
+
+echo $all
+if [ $all = true ]
+then
+    # set sim to true so generate_traces will also run sims
+    sim=true
+    for t in 2 4 8 16
+    do
+        threads=$t
+        echo $threads
+        generate_traces
+    done
+    exit 0
+fi
 
 # apparently the = true is necessary here
 if [ $trace = true ]
