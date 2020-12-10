@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   }
   int num_threads = atoi(argv[1]);
   vector<thread> thrList;
-  for (int i = 1; i < num_threads; i++) {
+  for (int i = 0; i < num_threads; i++) {
     thrList.push_back(thread(incr, 100));
   }
   for (auto &t : thrList) t.join();
