@@ -33,7 +33,7 @@ run_one_sim () {
     prog=$1
     for protocol in ${protocols[@]}; do
         echo "Running sim on ${prog} with protocol ${protocol} and ${threads} threads"
-        ~/cachesim/cachesim -t ~/cachesim/traces/${prog}${threads}.trace -p ${threads} -n 2 -m ${protocol} -A -i > ~/cachesim/results/10incrsleep/${prog}_${threads}_${protocol}.txt
+        ~/cachesim/cachesim -t ~/cachesim/traces/${prog}${threads}.trace -p ${threads} -n 2 -m ${protocol} -A -i > ~/cachesim/results/${prog}/${prog}_${threads}_${protocol}.txt
     done
 }
 
