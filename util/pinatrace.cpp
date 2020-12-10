@@ -149,7 +149,10 @@ VOID Instruction(INS ins, VOID *v) {
   }
 }
 
-VOID Fini(INT32 code, VOID *v) { fclose(trace); }
+VOID Fini(INT32 code, VOID *v) {
+  fprintf(trace, "#eof\n");
+  fclose(trace);
+}
 
 /* ===================================================================== */
 /* Print Help Message                                                    */

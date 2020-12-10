@@ -10,6 +10,7 @@ cd ~/cachesim
 make -j8
 make -j8 programs
 
+# cp ~/cachesim/util/pinatrace.cpp ~/pin/source/tools/ManualExamples
 cd ~/pin/source/tools/ManualExamples
 make
 
@@ -18,9 +19,23 @@ make
 
 progs=(ts_lock tts_lock ticketlock arraylock arraylock_aligned)
 protocols=(MSI MESI MOESI)
-prompt=false
 
+# cmd line flags
+prompt=false
+sim=false
+trace=false
+
+# num threads to run the programs with
 threads=8
+
+# run msi, mesi and moesi sims on given prog name
+run_one_sim () {
+    prog=$1
+    for protocol in ${protocols[@]}; do
+        echo "Running sim on ${prog} with protocol ${protocol} and ${threads} threads"
+        ~/cachesim/cachesim -t ~/cachesim/traces/${prog}${threads}.trace -p ${threads} -n 2 -m ${protocol} -A -i > ~/cachesim/results/10incrsleep/${prog}_${threads}_${protocol}.txt
+    done
+}
 
 generate_traces () {
     cd ~/pin/source/tools/ManualExamples
@@ -40,7 +55,23 @@ generate_traces () {
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
             echo "Generating trace for ${prog} with ${threads} threads"
-            ../../../pin -t obj-intel64/pinatrace.so -o ~/cachesim/traces/${prog}${threads}.trace -- ~/cachesim/programs/${prog}.out ${threads}
+            outfile=~/cachesim/traces/${prog}${threads}.trace
+            ../../../pin -t obj-intel64/pinatrace.so -o $outfile -- ~/cachesim/programs/${prog}.out ${threads}
+
+            # check that the file ends in the eof str
+            eof_str=$(tail -n 1 $outfile)
+            if [[ $eof_str != "#eof" ]]
+            then echo "Failed to generate trace - out of memory"
+                 exit 1
+            fi
+
+            # run the sim on it
+            if [ $sim = true ]
+            then
+                run_one_sim $prog
+                echo "Removing ${outfile}"
+                rm $outfile
+            fi
         fi
     done
 }
@@ -59,16 +90,10 @@ run_sim () {
 
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
-            for protocol in ${protocols[@]}; do
-                echo "Running sim on ${prog} with protocol ${protocol} and ${threads} threads"
-                ~/cachesim/cachesim -t ~/cachesim/traces/${prog}${threads}.trace -p ${threads} -n 2 -m ${protocol} -A -i > ~/cachesim/results/${prog}_${threads}_${protocol}.txt
-            done
+            run_one_sim $prog
         fi
     done
 }
-
-sim=false
-trace=false
 
 while getopts ":stp" flag; do
     case "${flag}" in
@@ -83,6 +108,7 @@ if [ $trace = true ]
 then generate_traces
 fi
 
-if [ $sim = true ]
+# sims will be run after traces are collected if trace and sim are true
+if [ $sim = true -a $trace = false ]
 then run_sim
 fi
