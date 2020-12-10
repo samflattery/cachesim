@@ -1,0 +1,149 @@
+Running simulation with cache settings:
+set size:	64
+associativity:	8
+line size:	64
+
+	** Aggregate Stats Without Processor 0 ***
+
+Total Reads/Writes:		16208
+
+Caches
+------
+Total Hits:		15324
+Total Misses:		884
+Total Flushes:		240
+Total Evictions: 	0
+Total Dirty Evictions: 	0
+Total Invalidations: 	288
+
+Interconnects
+-------------
+Total Local Interconnect Events: 	51895
+Total Global Interconnect Events: 	9414
+
+Memory
+------
+Total Memory Reads: 	14124
+
+Latencies
+---------
+Cache Access Latency:		15us
+Memory Read Latency:		1ms
+Memory Write Latency:		24us
+Memory Access Latency:		1ms
+Local Interconnect Latency:	51us
+Global Interconnect Latency:	18us
+
+
+	NUMA NODE: 0
+	-----------
+*** Cache 0 ***
+Misses:			13573
+Hits:			538372
+Flushes:		2249
+Evictions:		12557
+Dirty Evictions:	2156
+Invalidations:		56
+Cache Access Latency:	538us
+Memory Write Latency:	440us
+
+
+*** Cache 1 ***
+Misses:			198
+Hits:			2558
+Flushes:		38
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		49
+Cache Access Latency:	2us
+Memory Write Latency:	3us
+
+
+*** Cache 2 ***
+Misses:			115
+Hits:			2127
+Flushes:		35
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		42
+Cache Access Latency:	2us
+Memory Write Latency:	3us
+
+
+*** Cache 3 ***
+Misses:			116
+Hits:			2126
+Flushes:		35
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		42
+Cache Access Latency:	2us
+Memory Write Latency:	3us
+
+*** Interconnect Events ***
+Cache Events:			27339
+Directory Events:		15126
+Global Interconnect Events:	6102
+Local Interconnect Latency:	42us
+Global Interconnect Latency:	12us
+
+*** Memory Reads ***
+Memory Reads:		11383
+Memory Read Latency:	1ms
+
+	NUMA NODE: 1
+	-----------
+*** Cache 4 ***
+Misses:			114
+Hits:			2128
+Flushes:		35
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		41
+Cache Access Latency:	2us
+Memory Write Latency:	3us
+
+
+*** Cache 5 ***
+Misses:			115
+Hits:			2127
+Flushes:		34
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		39
+Cache Access Latency:	2us
+Memory Write Latency:	3us
+
+
+*** Cache 6 ***
+Misses:			113
+Hits:			2129
+Flushes:		33
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		40
+Cache Access Latency:	2us
+Memory Write Latency:	3us
+
+
+*** Cache 7 ***
+Misses:			113
+Hits:			2129
+Flushes:		30
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		35
+Cache Access Latency:	2us
+Memory Write Latency:	3us
+
+*** Interconnect Events ***
+Cache Events:			5955
+Directory Events:		3475
+Global Interconnect Events:	3312
+Local Interconnect Latency:	9us
+Global Interconnect Latency:	6us
+
+*** Memory Reads ***
+Memory Reads:		2741
+Memory Read Latency:	274us
+
