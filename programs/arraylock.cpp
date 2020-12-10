@@ -21,7 +21,8 @@ struct spinlock {
   padded_atomic_int_t status[MAX_THREADS];
   volatile atomic<unsigned int> next = {0};
   void init() {
-    for (int i = 0; i < MAX_THREADS; i++) status[i].data.store(0);
+    status[0].data.store(0);
+    for (int i = 1; i < MAX_THREADS; i++) status[i].data.store(1);
   }
 
   int lock() {
