@@ -107,12 +107,11 @@ while getopts ":stpa" flag; do
     esac
 done
 
-echo $all
 if [ $all = true ]
 then
     # set sim to true so generate_traces will also run sims
     sim=true
-    for t in 2 4 8 16
+    for t in 2 4 8 16 32
     do
         threads=$t
         echo $threads
