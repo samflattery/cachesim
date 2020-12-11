@@ -1,5 +1,10 @@
 # cachesim
 
-418 Final Project
+## Proposal
+The proposal can be found [here](./418_Final_Project_Proposal.pdf)
 
-<https://samflattery.github.io/>
+## Checkpoint
+The checkpoint report can be found [here](./418_Checkpoint.pdf)
+
+## Final 
+The final report can be found [here]()
