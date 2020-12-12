@@ -5,6 +5,7 @@ cachesim
 a.out
 traces/large.trace
 util/__pycache__
+.DS_Store
 
 traces/arraylock*.trace
 traces/arraylock_aligned*.trace
