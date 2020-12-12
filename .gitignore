@@ -4,6 +4,7 @@ tags:
 cachesim
 a.out
 traces/large.trace
+util/__pycache__
 
 traces/arraylock*.trace
 traces/arraylock_aligned*.trace
