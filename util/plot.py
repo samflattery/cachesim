@@ -5,10 +5,6 @@ import os
 from parse import parse
 
 
-# makes sure the axes don't get cropped
-plt.tight_layout()
-
-
 def pp_metric(metric: str):
     if metric == "total_ops":
         return "Total Operations"
@@ -159,6 +155,7 @@ def compare_locks_bar(metric, normalize=True):
             else:
                 plt.ylabel(f"{prettyMetric}")
             plt.xlabel("Lock type")
+            plt.tight_layout()
             plt.savefig(f"../plots/{metric} per lock type, {protocol}, p={n}")
             plt.clf()
 
@@ -186,6 +183,7 @@ def compare_protocols_bar(metric, normalize=True):
             else:
                 plt.ylabel(f"{prettyMetric}")
             plt.xlabel("Protocol")
+            plt.tight_layout()
             plt.savefig(f"../plots/{metric} per Protocol, {lock}, p={n}")
             plt.clf()
 
@@ -238,6 +236,7 @@ def compare_protocols_and_nprocs(metric):
                 plt.ylabel(f"{prettyMetric} (us)")
         else:
             plt.ylabel(prettyMetric)
+        plt.tight_layout()
         plt.savefig(f"../plots/protocols/{metric} vs nprocs, {lock}")
         plt.clf()
 
@@ -284,6 +283,7 @@ def compare_locks_and_nprocs(metric, include_ts=False):
     else:
         plt.ylabel(prettyMetric)
 
+    plt.tight_layout()
     if include_ts:
         plt.savefig(f"../plots/locks/ts_metrics/{metric} vs nprocs, ts")
     else:
