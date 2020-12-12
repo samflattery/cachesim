@@ -21,7 +21,8 @@ struct spinlock {
   padded_atomic_int_t status[MAX_THREADS];
   volatile atomic<unsigned int> next = {0};
   void init() {
-    for (int i = 0; i < MAX_THREADS; i++) status[i].data.store(0);
+    status[0].data.store(0);
+    for (int i = 1; i < MAX_THREADS; i++) status[i].data.store(1);
   }
 
   int lock() {
@@ -40,6 +41,7 @@ void incr(int amount) {
   for (int i = 0; i < amount; i++) {
     int my_ind = LOCK.lock();
     counter++;
+    sleep(1);
     LOCK.unlock(my_ind);
   }
 }
@@ -53,7 +55,7 @@ int main(int argc, char *argv[]) {
   int num_threads = atoi(argv[1]);
   vector<thread> thrList;
   for (int i = 1; i < num_threads; i++) {
-    thrList.push_back(thread(incr, 500));
+    thrList.push_back(thread(incr, 10));
   }
   for (auto &t : thrList) t.join();
 

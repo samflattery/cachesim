@@ -31,6 +31,9 @@
 FILE *trace;
 PIN_LOCK lock;
 
+KNOB<std::string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o",
+                                 "pinatrace.out", "specify output file name");
+
 // it seems like pin compiles this with an older version of gcc so unordered_map
 // hasn't been added yet, but this is an experimental version of it
 typedef std::tr1::unordered_map<unsigned long, int> TULongIntMap;
@@ -146,7 +149,10 @@ VOID Instruction(INS ins, VOID *v) {
   }
 }
 
-VOID Fini(INT32 code, VOID *v) { fclose(trace); }
+VOID Fini(INT32 code, VOID *v) {
+  fprintf(trace, "#eof\n");
+  fclose(trace);
+}
 
 /* ===================================================================== */
 /* Print Help Message                                                    */
@@ -168,7 +174,7 @@ int main(int argc, char *argv[]) {
   pagesize = getpagesize();
   srand(time(NULL));
 
-  trace = fopen("pinatrace.out", "w");
+  trace = fopen(KnobOutputFile.Value().c_str(), "w");
 
   INS_AddInstrumentFunction(Instruction, 0);
   PIN_AddFiniFunction(Fini, 0);

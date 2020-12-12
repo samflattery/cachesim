@@ -1,0 +1,413 @@
+Running simulation with cache settings:
+set size:	64
+associativity:	8
+line size:	64
+
+	** Aggregate Stats Without Processor 0 ***
+
+Total Reads/Writes:		18430966
+
+Caches
+------
+Total Hits:		18414882
+Total Misses:		16084
+Total Flushes:		0
+Total Evictions: 	0
+Total Dirty Evictions: 	0
+Total Invalidations: 	13348
+
+Interconnects
+-------------
+Total Local Interconnect Events: 	162990
+Total Global Interconnect Events: 	44431
+
+Memory
+------
+Total Memory Reads: 	16537
+
+Latencies
+---------
+Cache Access Latency:		18ms
+Memory Read Latency:		1ms
+Memory Write Latency:		0ns
+Memory Access Latency:		1ms
+Local Interconnect Latency:	162us
+Global Interconnect Latency:	88us
+
+
+	NUMA NODE: 0
+	-----------
+*** Cache 0 ***
+Hits:			600596
+Misses:			14125
+Flushes:		2591
+Evictions:		13274
+Dirty Evictions:	2591
+Invalidations:		217
+Cache Access Latency:	600us
+Memory Write Latency:	518us
+
+
+*** Cache 1 ***
+Hits:			433880
+Misses:			538
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		383
+Cache Access Latency:	433us
+Memory Write Latency:	0ns
+
+
+*** Cache 2 ***
+Hits:			1054549
+Misses:			646
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		554
+Cache Access Latency:	1ms
+Memory Write Latency:	0ns
+
+
+*** Cache 3 ***
+Hits:			560811
+Misses:			545
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		462
+Cache Access Latency:	560us
+Memory Write Latency:	0ns
+
+
+*** Cache 4 ***
+Hits:			801073
+Misses:			619
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		529
+Cache Access Latency:	801us
+Memory Write Latency:	0ns
+
+
+*** Cache 5 ***
+Hits:			621586
+Misses:			579
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		498
+Cache Access Latency:	621us
+Memory Write Latency:	0ns
+
+
+*** Cache 6 ***
+Hits:			738147
+Misses:			603
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		510
+Cache Access Latency:	738us
+Memory Write Latency:	0ns
+
+
+*** Cache 7 ***
+Hits:			336320
+Misses:			377
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		307
+Cache Access Latency:	336us
+Memory Write Latency:	0ns
+
+
+*** Cache 8 ***
+Hits:			516718
+Misses:			510
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		425
+Cache Access Latency:	516us
+Memory Write Latency:	0ns
+
+
+*** Cache 9 ***
+Hits:			503147
+Misses:			502
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		419
+Cache Access Latency:	503us
+Memory Write Latency:	0ns
+
+
+*** Cache 10 ***
+Hits:			629435
+Misses:			569
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		478
+Cache Access Latency:	629us
+Memory Write Latency:	0ns
+
+
+*** Cache 11 ***
+Hits:			510553
+Misses:			519
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		438
+Cache Access Latency:	510us
+Memory Write Latency:	0ns
+
+
+*** Cache 12 ***
+Hits:			191734
+Misses:			255
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		180
+Cache Access Latency:	191us
+Memory Write Latency:	0ns
+
+
+*** Cache 13 ***
+Hits:			530931
+Misses:			504
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		425
+Cache Access Latency:	530us
+Memory Write Latency:	0ns
+
+
+*** Cache 14 ***
+Hits:			297072
+Misses:			359
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		277
+Cache Access Latency:	297us
+Memory Write Latency:	0ns
+
+
+*** Cache 15 ***
+Hits:			762183
+Misses:			595
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		507
+Cache Access Latency:	762us
+Memory Write Latency:	0ns
+
+*** Interconnect Events ***
+Cache Events:			42298
+Directory Events:		37281
+Global Interconnect Events:	19546
+Local Interconnect Latency:	79us
+Global Interconnect Latency:	39us
+
+*** Memory Reads ***
+Memory Reads:		11682
+Memory Read Latency:	1ms
+
+	NUMA NODE: 1
+	-----------
+*** Cache 16 ***
+Hits:			905740
+Misses:			604
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		511
+Cache Access Latency:	905us
+Memory Write Latency:	0ns
+
+
+*** Cache 17 ***
+Hits:			429370
+Misses:			454
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		369
+Cache Access Latency:	429us
+Memory Write Latency:	0ns
+
+
+*** Cache 18 ***
+Hits:			582905
+Misses:			505
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		421
+Cache Access Latency:	582us
+Memory Write Latency:	0ns
+
+
+*** Cache 19 ***
+Hits:			595463
+Misses:			536
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		453
+Cache Access Latency:	595us
+Memory Write Latency:	0ns
+
+
+*** Cache 20 ***
+Hits:			729629
+Misses:			553
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		469
+Cache Access Latency:	729us
+Memory Write Latency:	0ns
+
+
+*** Cache 21 ***
+Hits:			507821
+Misses:			470
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		391
+Cache Access Latency:	507us
+Memory Write Latency:	0ns
+
+
+*** Cache 22 ***
+Hits:			823443
+Misses:			597
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		498
+Cache Access Latency:	823us
+Memory Write Latency:	0ns
+
+
+*** Cache 23 ***
+Hits:			296406
+Misses:			360
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		280
+Cache Access Latency:	296us
+Memory Write Latency:	0ns
+
+
+*** Cache 24 ***
+Hits:			828161
+Misses:			592
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		499
+Cache Access Latency:	828us
+Memory Write Latency:	0ns
+
+
+*** Cache 25 ***
+Hits:			551360
+Misses:			528
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		435
+Cache Access Latency:	551us
+Memory Write Latency:	0ns
+
+
+*** Cache 26 ***
+Hits:			520580
+Misses:			555
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		464
+Cache Access Latency:	520us
+Memory Write Latency:	0ns
+
+
+*** Cache 27 ***
+Hits:			470848
+Misses:			448
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		363
+Cache Access Latency:	470us
+Memory Write Latency:	0ns
+
+
+*** Cache 28 ***
+Hits:			651223
+Misses:			534
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		450
+Cache Access Latency:	651us
+Memory Write Latency:	0ns
+
+
+*** Cache 29 ***
+Hits:			761610
+Misses:			564
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		472
+Cache Access Latency:	761us
+Memory Write Latency:	0ns
+
+
+*** Cache 30 ***
+Hits:			594776
+Misses:			526
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		439
+Cache Access Latency:	594us
+Memory Write Latency:	0ns
+
+
+*** Cache 31 ***
+Hits:			677408
+Misses:			538
+Flushes:		0
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		442
+Cache Access Latency:	677us
+Memory Write Latency:	0ns
+
+*** Interconnect Events ***
+Cache Events:			34604
+Directory Events:		48807
+Global Interconnect Events:	24885
+Local Interconnect Latency:	83us
+Global Interconnect Latency:	49us
+
+*** Memory Reads ***
+Memory Reads:		4855
+Memory Read Latency:	485us
+

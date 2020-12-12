@@ -191,8 +191,8 @@ void Cache::printState() const {
 void Cache::printStats() const {
   auto stats = getStats();
   std::cout << "\n*** Cache " << cache_id_ << " ***\n"
-            << "Misses:\t\t\t" << stats.misses_ << "\n"
             << "Hits:\t\t\t" << stats.hits_ << "\n"
+            << "Misses:\t\t\t" << stats.misses_ << "\n"
             << "Flushes:\t\t" << stats.flushes_ << "\n"
             << "Evictions:\t\t" << stats.evictions_ << "\n"
             << "Dirty Evictions:\t" << stats.dirty_evictions_ << "\n"

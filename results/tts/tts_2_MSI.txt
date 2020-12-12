@@ -1,0 +1,83 @@
+Running simulation with cache settings:
+set size:	64
+associativity:	8
+line size:	64
+
+	** Aggregate Stats Without Processor 0 ***
+
+Total Reads/Writes:		3595
+
+Caches
+------
+Total Hits:		3397
+Total Misses:		198
+Total Flushes:		12
+Total Evictions: 	0
+Total Dirty Evictions: 	0
+Total Invalidations: 	19
+
+Interconnects
+-------------
+Total Local Interconnect Events: 	62856
+Total Global Interconnect Events: 	23223
+
+Memory
+------
+Total Memory Reads: 	13527
+
+Latencies
+---------
+Cache Access Latency:		3us
+Memory Read Latency:		1ms
+Memory Write Latency:		1us
+Memory Access Latency:		1ms
+Local Interconnect Latency:	62us
+Global Interconnect Latency:	46us
+
+
+	NUMA NODE: 0
+	-----------
+*** Cache 0 ***
+Hits:			523482
+Misses:			13365
+Flushes:		2127
+Evictions:		12400
+Dirty Evictions:	2103
+Invalidations:		16
+Cache Access Latency:	523us
+Memory Write Latency:	423us
+
+*** Interconnect Events ***
+Cache Events:			25932
+Directory Events:		13565
+Global Interconnect Events:	15323
+Local Interconnect Latency:	39us
+Global Interconnect Latency:	30us
+
+*** Memory Reads ***
+Memory Reads:		5722
+Memory Read Latency:	572us
+
+	NUMA NODE: 1
+	-----------
+*** Cache 1 ***
+Hits:			3397
+Misses:			198
+Flushes:		12
+Evictions:		0
+Dirty Evictions:	0
+Invalidations:		19
+Cache Access Latency:	3us
+Memory Write Latency:	1us
+
+*** Interconnect Events ***
+Cache Events:			15373
+Directory Events:		7986
+Global Interconnect Events:	7900
+Local Interconnect Latency:	23us
+Global Interconnect Latency:	15us
+
+*** Memory Reads ***
+Memory Reads:		7805
+Memory Read Latency:	780us
+
