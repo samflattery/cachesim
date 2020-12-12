@@ -249,9 +249,9 @@ def compare_locks_and_nprocs(metric, include_ts=False):
         plt.ylabel(prettyMetric)
 
     if include_ts:
-        plt.savefig(f"../plots/locks/ts_metrics/{metric} vs nprocs")
+        plt.savefig(f"../plots/locks/ts_metrics/{metric} vs nprocs, ts")
     else:
-        plt.savefig(f"../plots/locks/no_ts_metrics/{metric} vs nprocs")
+        plt.savefig(f"../plots/locks/no_ts_metrics/{metric} vs nprocs, no ts")
 
     plt.clf()
 
