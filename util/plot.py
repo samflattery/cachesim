@@ -42,6 +42,8 @@ def pp_metric(metric: str):
         return "Total Local Interconnect Time"
     elif metric == "inter_global_time":
         return "Total Global Interconnect Time"
+    elif metric == "total_time":
+        return "Total Time"
     else:
         raise NotImplementedError("Invalid Metric")
 
@@ -86,6 +88,21 @@ class TraceData:
         )
         self.inter_global_time = self.parse_time(
             "Global Interconnect Latency:\t{}", lines[34]
+        )
+
+        # more accurate alternative since the times are rounded to nearest ms
+        # but the other gives better graphs
+        # self.total_time = (
+        #     self.total_hits
+        #     + self.total_mem * 100
+        #     + self.total_global * 2
+        #     + self.total_local
+        # )
+        self.total_time = (
+            self.cache_time
+            + self.mem_access_time
+            + self.inter_local_time
+            + self.inter_global_time
         )
 
     def parse_time(self, form, line):
@@ -198,6 +215,13 @@ def compare_protocols_and_nprocs(metric):
         moesi_x, moesi_y = unzip(
             sorted(list(zip(moesi_x, moesi_y)), key=lambda v: v[0])
         )
+
+        # use ms for total time
+        if metric == "total_time":
+            msi_y = list(map(lambda x: x / 1000, msi_y))
+            mesi_y = list(map(lambda x: x / 1000, mesi_y))
+            moesi_y = list(map(lambda x: x / 1000, moesi_y))
+
         plt.plot(msi_x, msi_y, label="msi", color="blue", marker="o")
         plt.plot(mesi_x, mesi_y, label="mesi", color="red", marker="o")
         plt.plot(moesi_x, moesi_y, label="moesi", color="green", marker="o")
@@ -205,8 +229,13 @@ def compare_protocols_and_nprocs(metric):
         prettyMetric = pp_metric(metric)
         plt.title(f"{prettyMetric} vs Number of Procs, {lock}")
         plt.xlabel("Number of Procs")
+
+        # use ms for total time
         if metric.endswith("time"):
-            plt.ylabel(f"{prettyMetric} (us)")
+            if metric == "total_time":
+                plt.ylabel(f"{prettyMetric} (ms)")
+            else:
+                plt.ylabel(f"{prettyMetric} (us)")
         else:
             plt.ylabel(prettyMetric)
         plt.savefig(f"../plots/protocols/{metric} vs nprocs, {lock}")
@@ -236,6 +265,10 @@ def compare_locks_and_nprocs(metric, include_ts=False):
 
     colors = ["b", "g", "r", "c", "m"]
     for (i, lock) in enumerate(locks):
+        # ms for total time
+        if metric == "total_time":
+            ys[i] = list(map(lambda x: x / 1000, ys[i]))
+
         plt.plot(xs[i], ys[i], label=lock, color=colors[i], marker="o")
 
     plt.legend()
@@ -244,7 +277,10 @@ def compare_locks_and_nprocs(metric, include_ts=False):
     plt.xlabel("Number of Procs")
 
     if metric.endswith("time"):
-        plt.ylabel(f"{prettyMetric} (us)")
+        if metric == "total_time":
+            plt.ylabel(f"{prettyMetric} (ms)")
+        else:
+            plt.ylabel(f"{prettyMetric} (us)")
     else:
         plt.ylabel(prettyMetric)
 
@@ -277,8 +313,10 @@ all_traces = []
 
 # First parse the result files, use 'results' or 'bst_results'
 load_results("../results")
-
 plot_all()
+# compare_locks_and_nprocs('total_time')
+# compare_locks_and_nprocs('total_time', True)
+# compare_protocols_and_nprocs('total_time')
 
 # To plot times as a function of nprocs, use compare_protocols_and_nprocs
 # compare_protocols_and_nprocs('cache_time')
