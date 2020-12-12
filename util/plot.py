@@ -101,16 +101,12 @@ class TraceData:
     def get(self, field):
         return self.__dict__[field]
 
-
     def get_all_metrics(self):
         return self.__dict__
 
 
 def unzip(zip_list):
     return [i for i, j in zip_list], [j for i, j in zip_list]
-
-
-all_traces = []
 
 
 def load_results(directory):
@@ -120,6 +116,61 @@ def load_results(directory):
         for f in res_files:
             curr_trace = TraceData(lock_dir, f)
             all_traces.append(curr_trace)
+
+
+def compare_locks_bar(metric, normalize=True):
+    for protocol in protocols:
+        for n in nprocs:
+            x = []
+            y = []
+            for trace in all_traces:
+                if trace.nprocs == n and trace.protocol == protocol:
+                    x.append(trace.lock_type)
+                    if normalize:
+                        y.append(trace.get(metric) / trace.total_ops)
+                    else:
+                        y.append(trace.get(metric))
+            # sort in alphabetical order of lock name
+            x, y = unzip(sorted(list(zip(x, y)), key=lambda v: v[0]))
+
+            plt.bar(x, y, align="center")
+            prettyMetric = pp_metric(metric)
+
+            plt.title(f"{prettyMetric} per lock type, {protocol}, p={n}")
+            if normalize:
+                plt.ylabel(f"{prettyMetric} Proportion")
+            else:
+                plt.ylabel(f"{prettyMetric}")
+            plt.xlabel("Lock type")
+            plt.savefig(f"../plots/{metric} per lock type, {protocol}, p={n}")
+            plt.clf()
+
+
+def compare_protocols_bar(metric, normalize=True):
+    for lock in lock_types:
+        for n in nprocs:
+            x = []
+            y = []
+            for trace in all_traces:
+                if trace.nprocs == n and trace.lock_type == lock:
+                    x.append(trace.protocol)
+                    if normalize:
+                        y.append(trace.get(metric) / trace.total_ops)
+                    else:
+                        y.append(trace.get(metric))
+            # sort in order MSI, MESI, MOESI
+            x, y = unzip(sorted(list(zip(x, y)), key=lambda v: len(v[0])))
+
+            plt.bar(x, y, align="center")
+            prettyMetric = pp_metric(metric)
+            plt.title(f"{prettyMetric} per Protocol, {lock}, p={n}")
+            if normalize:
+                plt.ylabel(f"{prettyMetric} Proportion")
+            else:
+                plt.ylabel(f"{prettyMetric}")
+            plt.xlabel("Protocol")
+            plt.savefig(f"../plots/{metric} per Protocol, {lock}, p={n}")
+            plt.clf()
 
 
 def compare_protocols_and_nprocs(metric):
@@ -141,6 +192,7 @@ def compare_protocols_and_nprocs(metric):
                 else:  # trace.protocol == 'MOESI'
                     moesi_y.append(trace.get(metric))
                     moesi_x.append(trace.nprocs)
+        # sort by nprocs
         msi_x, msi_y = unzip(sorted(list(zip(msi_x, msi_y)), key=lambda v: v[0]))
         mesi_x, mesi_y = unzip(sorted(list(zip(mesi_x, mesi_y)), key=lambda v: v[0]))
         moesi_x, moesi_y = unzip(
@@ -157,7 +209,7 @@ def compare_protocols_and_nprocs(metric):
             plt.ylabel(f"{prettyMetric} (us)")
         else:
             plt.ylabel(prettyMetric)
-        plt.savefig(f"../plots/{metric} vs nprocs, {lock}")
+        plt.savefig(f"../plots/protocols/{metric} vs nprocs, {lock}")
         plt.clf()
 
 
@@ -175,6 +227,7 @@ def compare_locks_and_nprocs(metric, include_ts=False):
             if trace.lock_type == lock and trace.protocol == "MESI":
                 lock_ys.append(trace.get(metric))
                 lock_xs.append(trace.nprocs)
+        # sort by nprocs
         lock_xs, lock_ys = unzip(
             sorted(list(zip(lock_xs, lock_ys)), key=lambda v: v[0])
         )
@@ -189,65 +242,18 @@ def compare_locks_and_nprocs(metric, include_ts=False):
     prettyMetric = pp_metric(metric)
     plt.title(f"{prettyMetric} vs Number of Procs")
     plt.xlabel("Number of Procs")
+
     if metric.endswith("time"):
         plt.ylabel(f"{prettyMetric} (us)")
     else:
         plt.ylabel(prettyMetric)
 
     if include_ts:
-        plt.savefig(f"../plots/ts_metrics/{metric} vs nprocs")
+        plt.savefig(f"../plots/locks/ts_metrics/{metric} vs nprocs")
     else:
-        plt.savefig(f"../plots/no_ts_metrics/{metric} vs nprocs")
+        plt.savefig(f"../plots/locks/no_ts_metrics/{metric} vs nprocs")
 
     plt.clf()
-
-
-def compare_locks(metric, normalize=True):
-    for protocol in protocols:
-        for n in nprocs:
-            x = []
-            y = []
-            for trace in all_traces:
-                if trace.nprocs == n and trace.protocol == protocol:
-                    x.append(trace.lock_type)
-                    if normalize:
-                        y.append(trace.get(metric) / trace.total_ops)
-                    else:
-                        y.append(trace.get(metric))
-            plt.bar(x, y, align="center")
-            prettyMetric = pp_metric(metric)
-            plt.title(f"{prettyMetric} per lock type, {protocol}, p={n}")
-            if normalize:
-                plt.ylabel(f"{prettyMetric} Proportion")
-            else:
-                plt.ylabel(f"{prettyMetric}")
-            plt.xlabel("Lock type")
-            plt.savefig(f"../plots/{metric} per lock type, {protocol}, p={n}")
-            plt.clf()
-
-
-def compare_protocols(metric, normalize=True):
-    for lock in lock_types:
-        for n in nprocs:
-            x = []
-            y = []
-            for trace in all_traces:
-                if trace.nprocs == n and trace.lock_type == lock:
-                    x.append(trace.protocol)
-                    if normalize:
-                        y.append(trace.get(metric) / trace.total_ops)
-                    else:
-                        y.append(trace.get(metric))
-            plt.bar(x, y, align="center")
-            prettyMetric = pp_metric(metric)
-            plt.title(f"{prettyMetric} per Protocol, {lock}, p={n}")
-            if normalize:
-                plt.ylabel(f"{prettyMetric} Proportion")
-            else:
-                plt.ylabel(f"{prettyMetric}")
-            plt.xlabel("Protocol")
-            plt.savefig(f"../plots/{metric} per Protocol, {lock}, p={n}")
-            plt.clf()
 
 
 # plot all metrics against nprocs for all lock types
@@ -259,11 +265,13 @@ def plot_all():
             # run with and without ts
             compare_locks_and_nprocs(metric, True)
             compare_locks_and_nprocs(metric, False)
+            compare_protocols_and_nprocs(metric)
 
 
 protocols = ["MSI", "MESI", "MOESI"]
 lock_types = ["arraylock", "arraylockaligned", "ticketlock", "tts", "ts"]
 nprocs = [2, 4, 8, 16, 32]
+all_traces = []
 # Uncomment if using bst_results
 # nprocs = [8]
 
@@ -275,5 +283,5 @@ plot_all()
 # To plot times as a function of nprocs, use compare_protocols_and_nprocs
 # compare_protocols_and_nprocs('cache_time')
 
-# To compare locks or protocol, use compare_locks or compare_protocol
+# To compare locks or protocol, use compare_locks_bar or compare_protocol_bar
 # compare_protocols('mem_access_time', normalize=False)
