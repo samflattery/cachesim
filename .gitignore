@@ -12,3 +12,7 @@ traces/arraylock_aligned*.trace
 traces/ts_lock*.trace
 traces/tts_lock*.trace
 traces/ticketlock*.trace
+
+docs/final.aux
+docs/final.out
+docs/final.log
