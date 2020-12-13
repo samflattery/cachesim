@@ -1,5 +1,7 @@
 # cachesim
 
+15-418 Parallel Computer Architecture and Programming Final Project
+
 ## Proposal
 The proposal can be found [here](./docs/proposal.pdf)
 
