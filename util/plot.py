@@ -144,7 +144,10 @@ def compare_locks_bar(metric, normalize=True):
                     else:
                         y.append(trace.get(metric))
             # sort in alphabetical order of lock name
-            x, y = unzip(sorted(list(zip(x, y)), key=lambda v: v[0]))
+            # x, y = unzip(sorted(list(zip(x, y)), key=lambda v: v[0]))
+
+            # sort in order of the metric
+            x, y = unzip(sorted(list(zip(x, y)), key=lambda v: v[1]))
 
             plt.bar(x, y, align="center")
             prettyMetric = pp_metric(metric)
@@ -296,7 +299,7 @@ def compare_locks_and_nprocs(metric, include_ts=False):
 def plot_all():
     metrics = all_traces[0].get_all_metrics()
     for metric in metrics:
-        if metric not in ["lock_type", "nprocs", "protocol", "total_ops"]:
+        if metric not in ["lock_type", "nprocs", "protocol"]:
             print(f"plotting {metric}...")
             # run with and without ts
             compare_locks_and_nprocs(metric, True)
@@ -317,6 +320,7 @@ plot_all()
 # compare_locks_and_nprocs('total_time')
 # compare_locks_and_nprocs('total_time', True)
 # compare_protocols_and_nprocs('total_time')
+# compare_locks_bar('total_ops', False)
 
 # To plot times as a function of nprocs, use compare_protocols_and_nprocs
 # compare_protocols_and_nprocs('cache_time')

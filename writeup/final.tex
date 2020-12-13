@@ -156,14 +156,10 @@ We used Intel's \texttt{pin} program to instrument the binaries of several paral
 Our pintool creates a trace that looks like the following:
 \begin{lstlisting}[numbers=none]
 [CPU] [R/W] [Address] [NUMA Node]
-0 R 0x7ffef17ecea8 0
-1 W 0x7ffef17ecea0 1
-1 W 0x7ffef17ece98 1
-0 W 0x7ffef17ece90 0
-2 W 0x7ffef17ece88 0
-2 W 0x7ffef17ece80 0
-3 R 0x7ffef17ece78 0
-4 W 0x7fad12ad1e00 0
+1 R 0x7ffef17ecea8 0
+2 W 0x7ffef17ecea0 1
+3 W 0x7ffef17ece90 0
+4 W 0x7ffef17ece88 0
 \end{lstlisting}
 
 We make the simplifying assumption here that each thread is running on a different physical CPU, which obviously is not always the case but it allows us to better analyse the programs we write since we get a more even distribution of work between the CPU cores.  We found when generating traces that even programs with high amounts of parallelism ran on only a few physical processors.
@@ -324,8 +320,6 @@ To evaluate with more realistic programs, we also implemented a simple concurren
 
 The main thread in both of these programs was just responsible for spawning and joining threads and did not perform the locking/unlocking computation done by the children threads.  This was intentional, as the work done by thread 0 to set up the program was substantially more expensive than the simple operations every other thread was performing with the locks, which lead to the stats collected about the locks being diluted greatly by the large number of operations in setup.  We added the {\tt -A} flag in order to isolate the stats about the lock performance.
 
-Additionally, we sought to test our simulator on standard benchmarking programs.  We were able to successfully run the programs from the PARSEC Benchmark Suite (TODO: CITE HERE).  However, these programs led to impractically large trace files and we did not anticipate highly insightful results from them, so we instead chose to focus on the smaller programs we wrote ourselves.
-
 \section{Results}
 
 We wrote a script to generate plots for all of the metrics we collected, comparing lock types as well as cache coherence protocols. The most interesting findings are presented below.
@@ -343,6 +337,15 @@ One of the most striking findings was how poorly regular test-and-set locks perf
 \end{figure}
 
 \subsection{Highest Performance}
+Firstly, it's worth noting the difference in the number of reads/writes necessary to implement each lock, because this varies between the locks, with the simpler test-and-set based locks performing $\sim20\%$ fewer instrutions than the arraylock and ticketlock (see figure \ref{fig:ops}). Our simulation showed that this made a big difference, with more cache-performant locks having slower estimated times due to this overhead.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=.5\textwidth]{figures/ops.png}
+\caption{Total operations of each lock type}
+\label{fig:ops}
+\end{figure}
+
 From our comparisons, the fastest lock was the aligned arraylock.  Figure \ref{fig:speeds} below shows the estimated runtimes the simulator calculated for each of the programs, which is based off the stats collected and our estimated latencies.
 
 \begin{figure}[h]%
@@ -356,7 +359,7 @@ From our comparisons, the fastest lock was the aligned arraylock.  Figure \ref{f
 
 The aligned arraylock far outperformed any other locks in terms of having fewer memory reads due to missing infrequently in the cache. It also had the fewest number of invalidations due to the fact that it has $O(1)$ invalidations per cache per lock release while ticketlock has $O(P)$ and test-and-test-and-set has $O(P^2)$. It's also interesting to see the implications of false sharing as demonstrated by the difference between the aligned and unaligned arraylocks, with the unaligned lock having $\sim$2x as many invalidations and memory reads as its aligned counterpart. The difference in performance in these areas is illustrated below in figure \ref{fig:arraylock}.
 
-The test-and-test-and-set lock (tts lock) performed second best even though its cache performance was far worse than the unaligned arraylock, which is due to the fact that it requires fewer instructions and thus less time to acquire the lock.  The ticketlock suffers from both relatively many instructions as well as poor cache performance, so it performs the worst.  An interesting thing to note is that, while theoretically the tts lock has $O(P^2)$ invalidations and interconnect traffic, we saw $O(P)$ in our test programs. This was due to the fact that upon the release of the lock, all copies of the lock are invalidated.  Since threads require an exclusive ownership of the line to do the test-and-set, at most one cache's line is invalidated per test-and-set attempt since all threads try to test-and-set at the same time.
+The test-and-test-and-set lock (tts lock) performed second best even though its cache performance was far worse than the unaligned arraylock, which is due to the fact that it requires fewer memory operations and thus less time to acquire the lock (see figure \ref{fig:ops}.  The ticketlock suffers from both relatively many operations as well as poor cache performance, so it performs the worst.  An interesting thing to note is that while theoretically the tts lock has $O(P^2)$ invalidations and interconnect traffic, we saw $O(P)$ in our test programs. This was due to the fact that upon the release of the lock, all copies of the lock are invalidated.  Since threads require an exclusive ownership of the line to do the test-and-set, at most one cache's line is invalidated per test-and-set attempt since all threads try to test-and-set at the same time.
 
 \begin{figure}[h]%
     \centering
@@ -389,7 +392,7 @@ For the less cache-friendly locks such as ticketlock, we observed noticeable dif
     \label{fig:moesi}
 \end{figure}
 
-We were also able to observe this behaviour in other programs.  In the binary search tree program with the test-and-set lock, we were able to see that the MOESI protocol leds to substantially fewer memory access compared to other protocols (figure \ref{fig:bst}), which leads to a speedup. % TODO(bwei1) reason?
+We were also able to observe this behaviour in other programs.  In the binary search tree program with the test-and-set lock, we were able to see that the MOESI protocol led to substantially fewer memory accesses compared to other protocols (figure \ref{fig:bst}), as the owning cache can again serve the data instead of going to memory which leads to a speedup.
 
 \begin{figure}[h]
 \centering
@@ -410,19 +413,9 @@ Overall, we feel the project allowed us to explore interesting ideas discussed i
 \href{http://www.cs.cmu.edu/afs/cs/academic/class/15418-f20/public/lectures/11\_directorycoherence.pdf}{http://www.cs.cmu.edu/afs/cs/academic/class/15418-f20/public/lectures/11\_directorycoherence.pdf} \\
 \href{http://www.cs.cmu.edu/afs/cs/academic/class/15418-f20/public/lectures/17\_synchronization.pdf}{http://www.cs.cmu.edu/afs/cs/academic/class/15418-f20/public/lectures/17\_synchronization.pdf} \\
 \href{https://en.wikipedia.org/wiki/Directory-based\_coherence}{https://en.wikipedia.org/wiki/Directory-based\_coherence} \\
-\href{https://people.eecs.berkeley.edu/~pattrsn/252F96/Lecture18.pdf}{https://people.eecs.berkeley.edu/~pattrsn/252F96/Lecture18.pdf} \\
+\href{https://people.eecs.berkeley.edu/~ pattrsn/252F96/Lecture18.pdf}{https://people.eecs.berkeley.edu/$\sim$pattrsn/252F96/Lecture18.pdf} \\
 
 D. Lenoski, J. Laudon, K. Gharachorloo, A. Gupta and J. Hennessy, "The directory-based cache coherence protocol for the DASH multiprocessor," [1990] Proceedings. The 17th Annual International Symposium on Computer Architecture, Seattle, WA, USA, 1990, pp. 148-159, doi: 10.1109/ISCA.1990.134520.
-
-
-% PARSEC citation
-%@phdthesis{ bienia11benchmarking,
-%  author = {Christian Bienia},
-%  title = {Benchmarking Modern Multiprocessors},
-%  school = {Princeton University},
-%  year      = {2011},
-%  month     = {January}
-%A}
 
 \section{Work Distribution}
 
@@ -450,6 +443,8 @@ D. Lenoski, J. Laudon, K. Gharachorloo, A. Gupta and J. Hennessy, "The directory
         \hline
         Writing the final doc & Brian and Sam \\
         \hline
+        Making final presentation & Sam \\
+        \hline
     \end{tabular}
 \end{table}
 
@@ -459,4 +454,5 @@ D. Lenoski, J. Laudon, K. Gharachorloo, A. Gupta and J. Hennessy, "The directory
 
 
 \end{document}
+
 
