@@ -10,7 +10,7 @@ The proposal can be found [here](./docs/proposal.pdf)
 ### Checkpoint
 The checkpoint report can be found [here](./docs/checkpoint.pdf)
 
-### Checkpoint
+### Presentation
 The presentation slides can be found [here](./docs/presentation.pdf)
 
 ### Final
