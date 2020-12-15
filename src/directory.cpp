@@ -130,8 +130,6 @@ void Directory::receiveBusRd(int cache_id, unsigned long address) {
       if (protocol_ == Protocol::MOESI && line->owner_ != -1) {
         interconnect_->sendFetch(line->owner_, {addr, numa_node_});
       } else {
-        // TODO(samflattery/bwei98) this might not be a full memory access, could get data from a
-        // sharing cache
         memory_reads_++;
       }
       interconnect_->sendReadData(cache_id, addr, /* exclusive */ false);
