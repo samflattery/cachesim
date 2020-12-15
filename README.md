@@ -2,6 +2,8 @@
 
 15-418 Parallel Computer Architecture and Programming Final Project
 
+Cache simulator for a NUMA multiprocessor machine using distributed directory based cache coherence
+
 ## Deliverables
 
 ### Proposal
